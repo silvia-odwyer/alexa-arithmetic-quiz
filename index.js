@@ -20,7 +20,9 @@ const LaunchRequestHandler = {
   },
 };
 
+// Sets level to Basic Mode.
 const EasyQuizHandler = {
+  // Checks if an intermediate quiz request was fired
   canHandle(handlerInput) {
     const request = handlerInput.requestEnvelope.request;
     console.log(JSON.stringify(request));
@@ -28,16 +30,18 @@ const EasyQuizHandler = {
       (request.intent.name === "EasyQuizIntent" || request.intent.name === "AMAZON.StartOverIntent");
   },
   handle(handlerInput) {
-    setLevel("easy", handlerInput);
-    var speakOutput = "Ok. You have selected Basic Mode."
-    var repromptOutput = question;
 
-    return response.speak(speakOutput)
-      .reprompt(repromptOutput)
+    setLevel("intermediate", handlerInput);
+
+    let message = `Easy mode enabled!`
+    return handlerInput.responseBuilder
+      .speak(message)
+      .reprompt(helpMessage)
       .getResponse();
   },
 };
 
+// Sets game level to Intermediate.
 const IntermediateQuizHandler = {
   // Checks if an intermediate quiz request was fired
   canHandle(handlerInput) {
@@ -67,15 +71,11 @@ const AdvancedQuizHandler = {
       (request.intent.name === "AdvancedQuizIntent" || request.intent.name === "AMAZON.StartOverIntent");
   },
   handle(handlerInput) {
+    const attributes = handlerInput.attributesManager.getSessionAttributes();
 
-    if (attributes.state === states.QUIZ) {
-      let message = "I can't change levels while in-game. You'll need to start a new game."
-    }
-    else {
-      setLevel("advanced", handlerInput);
-      let message = `Advanced enabled!`;
+    setLevel("advanced", handlerInput);
+    let message = `Advanced enabled!`;
 
-    }
     return handlerInput.responseBuilder
       .speak(message)
       .reprompt(helpMessage)
@@ -422,32 +422,43 @@ function getRandom(min, max) {
 
 function askQuestion(handlerInput) {
   console.log("RUNNING: askQuestion()");
+  const math_array = ["plus", "subtract"];
 
   //GET SESSION ATTRIBUTES
   const attributes = handlerInput.attributesManager.getSessionAttributes();
 
   let level = attributes.level;
+  let randomOperator;
 
-  if (level === "easy") {
-    const randomOperator = math_array[random_math_arr_index];
-  }
-  else if (level === "intermediate") {
-
+  if (level == "intermediate") {
+    randomOperator = math_array[1];
   }
   else {
-    const randomOperator = math_array[random_math_arr_index];
+    randomOperator = math_array[0];
   }
+
+
+  let random_math_arr_index = getRandom(0, math_array.length - 1);
 
   const random = getRandom(0, 50);
 
-  const randomNumber1 = getRandom(0, 50);
-  const randomNumber2 = getRandom(0, 50);
+  let randomNumber1 = getRandom(0, 50);
+  let randomNumber2 = getRandom(0, 50);
 
-  const math_array = ["plus", "subtract"];
-  const random_math_arr_index = getRandom(0, math_array.length - 1);
+  if (randomOperator === "subtract") {
+    if (randomNumber1 < randomNumber2) {
+      let temp = randomNumber1;
+      randomNumber1 = randomNumber2;
+      randomNumber2 = temp;
+    }
+  }
+
   let answer = 0;
   if (randomOperator == "plus") {
     answer = randomNumber1 + randomNumber2;
+  }
+  else if (randomOperator == "subtract") {
+    answer = randomNumber1 - randomNumber2
   }
 
   answer_arr.push(answer);
