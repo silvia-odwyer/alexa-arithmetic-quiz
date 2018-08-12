@@ -2,14 +2,13 @@
 /* eslint-disable  no-console */
 /* eslint-disable  no-restricted-syntax */
 
-// IMPORTANT: Please note that this template uses Dispay Directives,
-// Display Interface for your skill should be enabled through the Amazon developer console
 // See this screenshot - https://alexa.design/enabledisplay
 
 const Alexa = require('ask-sdk-core');
 
-/* INTENT HANDLERS */
+/* All Intent Handlers */
 const LaunchRequestHandler = {
+  // Checks if a launch request was fired
   canHandle(handlerInput) {
     return handlerInput.requestEnvelope.request.type === `LaunchRequest`;
   },
@@ -21,21 +20,83 @@ const LaunchRequestHandler = {
   },
 };
 
+const EasyQuizHandler = {
+  canHandle(handlerInput) {
+    const request = handlerInput.requestEnvelope.request;
+    console.log(JSON.stringify(request));
+    return request.type === "IntentRequest" &&
+      (request.intent.name === "EasyQuizIntent" || request.intent.name === "AMAZON.StartOverIntent");
+  },
+  handle(handlerInput) {
+    setLevel("easy", handlerInput);
+    var speakOutput = "Ok. You have selected Basic Mode."
+    var repromptOutput = question;
+
+    return response.speak(speakOutput)
+      .reprompt(repromptOutput)
+      .getResponse();
+  },
+};
+
+const IntermediateQuizHandler = {
+  // Checks if an intermediate quiz request was fired
+  canHandle(handlerInput) {
+    const request = handlerInput.requestEnvelope.request;
+    console.log(JSON.stringify(request));
+    return request.type === "IntentRequest" &&
+      (request.intent.name === "IntermediateQuizIntent" || request.intent.name === "AMAZON.StartOverIntent");
+  },
+  handle(handlerInput) {
+
+    setLevel("intermediate", handlerInput);
+
+    let message = `Intermediate enabled!`
+    return handlerInput.responseBuilder
+      .speak(message)
+      .reprompt(helpMessage)
+      .getResponse();
+  },
+};
+
+const AdvancedQuizHandler = {
+  // Checks if an intermediate quiz request was fired
+  canHandle(handlerInput) {
+    const request = handlerInput.requestEnvelope.request;
+    console.log(JSON.stringify(request));
+    return request.type === "IntentRequest" &&
+      (request.intent.name === "AdvancedQuizIntent" || request.intent.name === "AMAZON.StartOverIntent");
+  },
+  handle(handlerInput) {
+
+    if (attributes.state === states.QUIZ) {
+      let message = "I can't change levels while in-game. You'll need to start a new game."
+    }
+    else {
+      setLevel("advanced", handlerInput);
+      let message = `Advanced enabled!`;
+
+    }
+    return handlerInput.responseBuilder
+      .speak(message)
+      .reprompt(helpMessage)
+      .getResponse();
+  },
+};
+
 const QuizHandler = {
   canHandle(handlerInput) {
     const request = handlerInput.requestEnvelope.request;
-    console.log("Inside QuizHandler");
     console.log(JSON.stringify(request));
     return request.type === "IntentRequest" &&
-           (request.intent.name === "QuizIntent" || request.intent.name === "AMAZON.StartOverIntent");
+      (request.intent.name === "QuizIntent" || request.intent.name === "AMAZON.StartOverIntent");
   },
   handle(handlerInput) {
-    console.log("Inside QuizHandler - handle");
+
     const attributes = handlerInput.attributesManager.getSessionAttributes();
     const response = handlerInput.responseBuilder;
-    attributes.state = states.QUIZ;
     attributes.counter = 0;
     attributes.quizScore = 0;
+    attributes.state = states.QUIZ;
 
     var question = askQuestion(handlerInput);
     var speakOutput = startQuizMessage + question;
@@ -52,41 +113,39 @@ const QuizHandler = {
       getAndShuffleMultipleChoiceAnswers(attributes.selectedItemIndex, item, property).forEach((x, i) => {
         itemList.push(
           {
-            "token" : x,
-            "textContent" : new Alexa.PlainTextContentHelper().withPrimaryText(x).getTextContent(),
+            "token": x,
+            "textContent": new Alexa.PlainTextContentHelper().withPrimaryText(x).getTextContent(),
           }
         );
       });
       response.addRenderTemplateDirective({
-        type : 'ListTemplate1',
-        token : 'Question',
-        backButton : 'hidden',
+        type: 'ListTemplate1',
+        token: 'Question',
+        backButton: 'hidden',
         backgroundImage,
         title,
-        listItems : itemList,
+        listItems: itemList,
       });
     }
 
     return response.speak(speakOutput)
-                   .reprompt(repromptOutput)
-                   .getResponse();
+      .reprompt(repromptOutput)
+      .getResponse();
   },
 };
 
-
-
-const QuizAnswerHandler = {
+const AnswerHandler = {
   canHandle(handlerInput) {
-    console.log("Inside QuizAnswerHandler");
+
     const attributes = handlerInput.attributesManager.getSessionAttributes();
     const request = handlerInput.requestEnvelope.request;
 
     return attributes.state === states.QUIZ &&
-           request.type === 'IntentRequest' &&
-           request.intent.name === 'AnswerIntent';
+      request.type === 'IntentRequest' &&
+      request.intent.name === 'AnswerIntent';
   },
   handle(handlerInput) {
-    console.log("Inside QuizAnswerHandler - handle");
+
     const attributes = handlerInput.attributesManager.getSessionAttributes();
     const response = handlerInput.responseBuilder;
 
@@ -100,14 +159,17 @@ const QuizAnswerHandler = {
     const operator = attributes.operator;
 
     const isCorrect = compareSlots(handlerInput.requestEnvelope.request.intent.slots, actual_answer);
+    var simpleCardMsg = "";
 
     if (isCorrect) {
       speakOutput = getSpeechCon(true);
       let randomNum = getRandom(0, correct_msgs.length - 1);
       let correct_msg = correct_msgs[randomNum];
       speakOutput += correct_msg;
+      simpleCardMsg += correct_msg;
       attributes.quizScore += 1;
       handlerInput.attributesManager.setSessionAttributes(attributes);
+
     } else {
       let randomIncorrectIndex = getRandom(0, incorrect_msgs.length - 1);
 
@@ -115,6 +177,9 @@ const QuizAnswerHandler = {
       speakOutput += incorrect_msg;
       speakOutput = getSpeechCon(false);
       speakOutput += `${number_one} ${operator} ${number_two} is ${actual_answer}. `
+
+      simpleCardMsg += incorrect_msg;
+
     }
 
     var question = ``;
@@ -122,6 +187,8 @@ const QuizAnswerHandler = {
     if (attributes.counter < 6) {
       speakOutput += getCurrentScore(attributes.quizScore, attributes.counter);
       question = askQuestion(handlerInput);
+
+      simpleCardMsg += ` ${question}`;
       speakOutput += question;
       repromptOutput = question;
 
@@ -133,31 +200,32 @@ const QuizAnswerHandler = {
         getAndShuffleMultipleChoiceAnswers(attributes.selectedItemIndex, attributes.quizItem, attributes.quizProperty).forEach((x, i) => {
           itemList.push(
             {
-              "token" : x,
-              "textContent" : new Alexa.PlainTextContentHelper().withPrimaryText(x).getTextContent(),
+              "token": x,
+              "textContent": new Alexa.PlainTextContentHelper().withPrimaryText(x).getTextContent(),
             }
           );
         });
         response.addRenderTemplateDirective({
-          type : 'ListTemplate1',
-          token : 'Question',
-          backButton : 'hidden',
+          type: 'ListTemplate1',
+          token: 'Question',
+          backButton: 'hidden',
           backgroundImage,
           title,
-          listItems : itemList,
+          listItems: itemList,
         });
       }
       return response.speak(speakOutput)
-      .reprompt(repromptOutput)
-      .getResponse();
+        .withSimpleCard(simpleCardMsg)
+        .reprompt(repromptOutput)
+        .getResponse();
     }
     else {
       speakOutput += getFinalScore(attributes.quizScore, attributes.counter) + exitSkillMessage;
-      if(supportsDisplay(handlerInput)) {
+      if (supportsDisplay(handlerInput)) {
         const title = 'Thank you for playing';
         const primaryText = new Alexa.RichTextContentHelper().withPrimaryText(getFinalScore(attributes.quizScore, attributes.counter)).getTextContent();
         response.addRenderTemplateDirective({
-          type : 'BodyTemplate1',
+          type: 'BodyTemplate1',
           backButton: 'hidden',
           title,
           textContent: primaryText,
@@ -170,16 +238,16 @@ const QuizAnswerHandler = {
 
 const RepeatHandler = {
   canHandle(handlerInput) {
-    console.log("Inside RepeatHandler");
+
     const attributes = handlerInput.attributesManager.getSessionAttributes();
     const request = handlerInput.requestEnvelope.request;
 
     return attributes.state === states.QUIZ &&
-           request.type === 'IntentRequest' &&
-           request.intent.name === 'AMAZON.RepeatHandler';
+      request.type === 'IntentRequest' &&
+      request.intent.name === 'AMAZON.RepeatHandler';
   },
   handle(handlerInput) {
-    console.log("Inside RepeatHandler - handle");
+
     const attributes = handlerInput.attributesManager.getSessionAttributes();
     const question = getQuestion(attributes.counter, attributes.quizproperty, attributes.quizitem);
 
@@ -192,13 +260,12 @@ const RepeatHandler = {
 
 const HelpHandler = {
   canHandle(handlerInput) {
-    console.log("Inside HelpHandler");
+
     const request = handlerInput.requestEnvelope.request;
     return request.type === 'IntentRequest' &&
-           request.intent.name === 'AMAZON.HelpHandler';
+      request.intent.name === 'AMAZON.HelpHandler';
   },
   handle(handlerInput) {
-    console.log("Inside HelpHandler - handle");
     return handlerInput.responseBuilder
       .speak(helpMessage)
       .reprompt(helpMessage)
@@ -208,15 +275,14 @@ const HelpHandler = {
 
 const ExitHandler = {
   canHandle(handlerInput) {
-    console.log("Inside ExitHandler");
     const attributes = handlerInput.attributesManager.getSessionAttributes();
     const request = handlerInput.requestEnvelope.request;
 
     return request.type === `IntentRequest` && (
-              request.intent.name === 'AMAZON.StopIntent' ||
-              request.intent.name === 'AMAZON.PauseIntent' ||
-              request.intent.name === 'AMAZON.CancelIntent'
-           );
+      request.intent.name === 'AMAZON.StopIntent' ||
+      request.intent.name === 'AMAZON.PauseIntent' ||
+      request.intent.name === 'AMAZON.CancelIntent'
+    );
   },
   handle(handlerInput) {
     return handlerInput.responseBuilder
@@ -227,7 +293,6 @@ const ExitHandler = {
 
 const SessionEndedRequestHandler = {
   canHandle(handlerInput) {
-    console.log("Inside SessionEndedRequestHandler");
     return handlerInput.requestEnvelope.request.type === 'SessionEndedRequest';
   },
   handle(handlerInput) {
@@ -238,11 +303,10 @@ const SessionEndedRequestHandler = {
 
 const ErrorHandler = {
   canHandle() {
-    console.log("Inside ErrorHandler");
+    console.log("Error Raised!");
     return true;
   },
   handle(handlerInput, error) {
-    console.log("Inside ErrorHandler - handle");
     console.log(`Error handled: ${JSON.stringify(error)}`);
     console.log(`Handler Input: ${JSON.stringify(handlerInput)}`);
 
@@ -258,7 +322,7 @@ const skillBuilder = Alexa.SkillBuilders.custom();
 const answer_arr = [];
 const imagePath = "https://m.media-amazon.com/images/G/01/mobile-apps/dex/alexa/alexa-skills-kit/tutorials/quiz-game/state_flag/{0}x{1}/{2}._TTH_.png";
 const backgroundImagePath = "https://m.media-amazon.com/images/G/01/mobile-apps/dex/alexa/alexa-skills-kit/tutorials/quiz-game/state_flag/{0}x{1}/{2}._TTH_.png"
-const speechConsCorrect = ['Booya', 'All righty', 'Bam', 'Bazinga', 'Bingo', 'Boom', 'Bravo', 'Cha Ching', 'Cheers', 'Dynomite', 'Hip hip hooray', 'Hurrah', 'Hurray', 'Huzzah', 'Oh dear.  Just kidding.  Hurray', 'Kaboom', 'Kaching', 'Oh snap', 'Phew','Righto', 'Way to go', 'Well done', 'Whee', 'Woo hoo', 'Yay', 'Wowza', 'Yowsa'];
+const speechConsCorrect = ['Booya', 'All righty', 'Bam', 'Bazinga', 'Bingo', 'Boom', 'Bravo', 'Cha Ching', 'Cheers', 'Dynomite', 'Hip hip hooray', 'Hurrah', 'Hurray', 'Huzzah', 'Oh dear.  Just kidding.  Hurray', 'Kaboom', 'Kaching', 'Oh snap', 'Phew', 'Righto', 'Way to go', 'Well done', 'Whee', 'Woo hoo', 'Yay', 'Wowza', 'Yowsa'];
 const speechConsWrong = ['Argh', 'Aw man', 'Blarg', 'Blast', 'Boo', 'Bummer', 'Darn', "D'oh", 'Dun dun dun', 'Eek', 'Honk', 'Le sigh', 'Mamma mia', 'Oh boy', 'Oh dear', 'Oof', 'Ouch', 'Ruh roh', 'Shucks', 'Uh oh', 'Wah wah', 'Whoops a daisy', 'Yikes'];
 
 const states = {
@@ -269,8 +333,8 @@ const states = {
 const correct_msgs = ["You're right!", "Right answer!", "That's correct!", "You are right!", "Yep, that's the right answer!", "Congrats, you're right!", "Yep, you're right!"];
 const incorrect_msgs = ["Wrong answer.", "Sorry, you're wrong.", "That's an incorrect answer."]
 
-const welcomeMessage = `Welcome to Quick Arithmetic, the game that puts your arithmetic to the test! You can ask me to start a quiz in basic, intermediate, or advanced mode. What would you like to play?`;
-const startQuizMessage = `OK.  I will ask you 6 arithmetic questions.`;
+const welcomeMessage = `Welcome to Quick Arithmetic, the game that puts your arithmetic skills to the test! You can ask me to start a quiz in basic, intermediate, or advanced mode. What would you like to play?`;
+const startQuizMessage = `OK. I will ask you 6 arithmetic questions. `;
 const exitSkillMessage = `Thank you for playing Quick Arithmetic!  Let's play again soon!`;
 const repromptSpeech = `Would you like to play again?`;
 const helpMessage = `If you want to play a quiz in basic mode, just say play basic quiz, if you want to play in intermediate, just say play intermediate quiz. The same applies for advanced. What would you like to do?`;
@@ -340,7 +404,7 @@ function getQuestion(counter, property, item) {
 // getQuestionWithoutOrdinal returns the question without the ordinal and is
 // used for the echo show.
 function getQuestionWithoutOrdinal(property, item) {
-  return "What is the " + formatCasing(property).toLowerCase() + " of "  + item.StateName + "?";
+  return "What is the " + formatCasing(property).toLowerCase() + " of " + item.StateName + "?";
 }
 
 function getAnswer(property, item) {
@@ -357,26 +421,36 @@ function getRandom(min, max) {
 }
 
 function askQuestion(handlerInput) {
-  console.log("I am in askQuestion()");
-  //GENERATING THE RANDOM QUESTION FROM DATA
+  console.log("RUNNING: askQuestion()");
+
+  //GET SESSION ATTRIBUTES
+  const attributes = handlerInput.attributesManager.getSessionAttributes();
+
+  let level = attributes.level;
+
+  if (level === "easy") {
+    const randomOperator = math_array[random_math_arr_index];
+  }
+  else if (level === "intermediate") {
+
+  }
+  else {
+    const randomOperator = math_array[random_math_arr_index];
+  }
+
   const random = getRandom(0, 50);
 
   const randomNumber1 = getRandom(0, 50);
   const randomNumber2 = getRandom(0, 50);
 
-  const math_array = ["plus"];
+  const math_array = ["plus", "subtract"];
   const random_math_arr_index = getRandom(0, math_array.length - 1);
-  const randomOperator = math_array[random_math_arr_index];
   let answer = 0;
   if (randomOperator == "plus") {
     answer = randomNumber1 + randomNumber2;
   }
 
   answer_arr.push(answer);
-
-
-  //GET SESSION ATTRIBUTES
-  const attributes = handlerInput.attributesManager.getSessionAttributes();
 
   const question = getMathQuestion(attributes.counter, randomOperator, randomNumber1, randomNumber2);
 
@@ -386,7 +460,7 @@ function askQuestion(handlerInput) {
   attributes.number_two = randomNumber2;
   attributes.operator = randomOperator;
   attributes.selectedItemIndex = random;
-  attributes.counter += 1;  
+  attributes.counter += 1;
 
   //SAVE ATTRIBUTES
   handlerInput.attributesManager.setSessionAttributes(attributes);
@@ -395,6 +469,11 @@ function askQuestion(handlerInput) {
   return question;
 }
 
+function setLevel(level, handlerInput) {
+  const attributes = handlerInput.attributesManager.getSessionAttributes();
+  attributes.level = level;
+  handlerInput.attributesManager.setSessionAttributes(attributes);
+}
 function getMathQuestion(counter, operator, randomNumber1, randomNumber2) {
   return `Here is your ${counter + 1}th question.  What is ${randomNumber1} ${operator} ${randomNumber2}?`;
 
@@ -478,7 +557,7 @@ function getMultipleChoiceAnswers(currentIndex, item, property) {
     let random = getRandom(0, 52);
 
     // only add if we haven't seen this index
-    if ( seen[random] === undefined ) {
+    if (seen[random] === undefined) {
       answerList.push(data[random][property]);
       count++;
     }
@@ -495,7 +574,7 @@ function getMultipleChoiceAnswers(currentIndex, item, property) {
 function shuffle(array) {
   let currentIndex = array.length, temporaryValue, randomIndex;
 
-  while ( 0 !== currentIndex ) {
+  while (0 !== currentIndex) {
     randomIndex = Math.floor(Math.random() * currentIndex);
     currentIndex--;
     temporaryValue = array[currentIndex];
@@ -505,16 +584,18 @@ function shuffle(array) {
   return array;
 }
 
-/* LAMBDA SETUP */
 exports.handler = skillBuilder
   .addRequestHandlers(
-    LaunchRequestHandler,
-    QuizHandler,
-    QuizAnswerHandler,
-    RepeatHandler,
-    HelpHandler,
-    ExitHandler,
-    SessionEndedRequestHandler
+  LaunchRequestHandler,
+  QuizHandler,
+  AnswerHandler,
+  RepeatHandler,
+  EasyQuizHandler,
+  IntermediateQuizHandler,
+  AdvancedQuizHandler,
+  HelpHandler,
+  ExitHandler,
+  SessionEndedRequestHandler
   )
   .addErrorHandlers(ErrorHandler)
   .lambda();
