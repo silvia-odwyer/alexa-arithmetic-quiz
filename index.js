@@ -22,7 +22,7 @@ const LaunchRequestHandler = {
 
 // Sets level to Basic Mode.
 const EasyQuizHandler = {
-  // Checks if an intermediate quiz request was fired
+  // Checks if an `enable easy/basic mode` quiz request was fired
   canHandle(handlerInput) {
     const request = handlerInput.requestEnvelope.request;
     console.log(JSON.stringify(request));
@@ -31,7 +31,7 @@ const EasyQuizHandler = {
   },
   handle(handlerInput) {
 
-    setLevel("intermediate", handlerInput);
+    setLevel("easy", handlerInput);
 
     let message = `Easy mode enabled!`
     return handlerInput.responseBuilder
@@ -427,23 +427,32 @@ function askQuestion(handlerInput) {
   //GET SESSION ATTRIBUTES
   const attributes = handlerInput.attributesManager.getSessionAttributes();
 
+  //Get game level
   let level = attributes.level;
   let randomOperator;
 
-  if (level == "intermediate") {
+  // Set operator depending on the game's level.
+  // 
+  if (level == "easy") {
+    randomOperator = math_array[0];
+
+    let randomNumber1 = getRandom(0, 30);
+    let randomNumber2 = getRandom(0, 30);
+  }
+  else if (level == "intermediate") {
     randomOperator = math_array[1];
+
+    let randomNumber1 = getRandom(0, 50);
+    let randomNumber2 = getRandom(0, 50);
   }
   else {
-    randomOperator = math_array[0];
+    let randomNum = getRandom(0, math_array.length - 1);
+    let randomNumber1 = getRandom(0, 60);
+    let randomNumber2 = getRandom(0, 60);
+    randomOperator = math_array[randomNum]
   }
 
 
-  let random_math_arr_index = getRandom(0, math_array.length - 1);
-
-  const random = getRandom(0, 50);
-
-  let randomNumber1 = getRandom(0, 50);
-  let randomNumber2 = getRandom(0, 50);
 
   if (randomOperator === "subtract") {
     if (randomNumber1 < randomNumber2) {
