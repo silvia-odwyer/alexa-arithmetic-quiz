@@ -1,0 +1,69 @@
+{
+  "interactionModel": {
+    "languageModel": {
+      "invocationName": "quiz game",
+      "intents": [
+        {
+          "name": "AMAZON.CancelIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.HelpIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.PauseIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.StartOverIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.StopIntent",
+          "samples": []
+        },
+        {
+          "name": "QuizIntent",
+          "samples": [
+            "start an quiz",
+            "start a quiz game",
+            "and start a quiz",
+            "and quiz me",
+            "for a quiz",
+            "a quiz", 
+            "play a game", 
+            "start quick arithmetic", 
+            "start a quick arithmetic quiz", 
+            "start an arithmetic game", 
+            "start a maths quiz"
+          ],
+          "slots": []
+        },
+        {
+          "name": "IntermediateQuizIntent",
+          "samples": [
+            "intermediate"
+          ],
+          "slots": []
+        },
+        {
+          "name": "AdvancedQuizIntent",
+          "samples": [
+            "advanced"
+          ],
+          "slots": []
+        },
+        {
+          "name": "EasyQuizIntent",
+          "samples": [
+            "easy"
+          ],
+          "slots": []
+        }
+      ],
+      "types": [
+          ]  
+    }
+  }
+}
