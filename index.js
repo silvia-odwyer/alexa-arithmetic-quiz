@@ -33,7 +33,7 @@ const EasyQuizHandler = {
 
     setLevel("easy", handlerInput);
 
-    let message = `Easy mode enabled!`
+    let message = "Easy mode enabled! If you're ready to begin, say start quiz."
     return handlerInput.responseBuilder
       .speak(message)
       .reprompt(helpMessage)
@@ -54,7 +54,7 @@ const IntermediateQuizHandler = {
 
     setLevel("intermediate", handlerInput);
 
-    let message = `Intermediate enabled!`
+    let message = "Intermediate enabled! If you're ready to begin, say start quiz."
     return handlerInput.responseBuilder
       .speak(message)
       .reprompt(helpMessage)
@@ -74,7 +74,7 @@ const AdvancedQuizHandler = {
     const attributes = handlerInput.attributesManager.getSessionAttributes();
 
     setLevel("advanced", handlerInput);
-    let message = `Advanced enabled!`;
+    let message = "Advanced enabled! If you're ready to begin, say start quiz. ";
 
     return handlerInput.responseBuilder
       .speak(message)
@@ -432,13 +432,14 @@ function askQuestion(handlerInput) {
   let randomOperator;
   let randomNumber1;
   let randomNumber2;
+  let ranIndex = getRandom(0, math_array.length - 1);
   // Set operator depending on the game's level.
-  // 
+  // Set number ranges depending on the game's level. 
+  // Basic mode would involve smaller numbers, while intermediate
+  // and advanced modes would involve larger numbers.
   if (level == "easy") {
-    let ranIndex = getRandom(0, 1);
-
     randomOperator = math_array[ranIndex];
-    if (randomOperator === "plus") {
+    if (randomOperator === "plus" || randomOperator == "subtract") {
       randomNumber1 = getRandom(5, 30);
       randomNumber2 = getRandom(5, 30);
     }
@@ -449,16 +450,29 @@ function askQuestion(handlerInput) {
 
   }
   else if (level == "intermediate") {
-    randomOperator = math_array[1];
+    randomOperator = math_array[ranIndex];
 
-    randomNumber1 = getRandom(8, 50);
-    randomNumber2 = getRandom(8, 50);
+    if (randomOperator === "plus" || randomOperator === "subtract") {
+      randomNumber1 = getRandom(8, 50);
+      randomNumber2 = getRandom(8, 50);
+    }
+    else if (randomOperator === "multiply") {
+      randomNumber1 = getRandom(5, 12);
+      randomNumber2 = getRandom(5, 12);
+    }
+
   }
   else {
-    let randomNum = getRandom(0, math_array.length - 1);
-    randomOperator = math_array[randomNum];
-    randomNumber1 = getRandom(12, 50);
-    randomNumber2 = getRandom(60, 50);
+    randomOperator = math_array[ranIndex];
+    if (randomOperator === "plus" || randomOperator === "subtract") {
+      randomNumber1 = getRandom(15, 70);
+      randomNumber2 = getRandom(15, 70);
+    }
+    else if (randomOperator === "multiply") {
+      randomNumber1 = getRandom(7, 14);
+      randomNumber2 = getRandom(7, 14);
+    }
+
   }
 
   let random_math_arr_index = getRandom(0, math_array.length - 1);
@@ -496,7 +510,6 @@ function askQuestion(handlerInput) {
   //SAVE ATTRIBUTES
   handlerInput.attributesManager.setSessionAttributes(attributes);
 
-
   return question;
 }
 
@@ -522,43 +535,12 @@ function compareSlots(slots, value) {
   return false;
 }
 
-function getItem(slots) {
-  const propertyArray = Object.getOwnPropertyNames(data[0]);
-  let slotValue;
-
-  for (const slot in slots) {
-    if (Object.prototype.hasOwnProperty.call(slots, slot) && slots[slot].value !== undefined) {
-      slotValue = slots[slot].value;
-      for (const property in propertyArray) {
-        if (Object.prototype.hasOwnProperty.call(propertyArray, property)) {
-          const item = data.filter(x => x[propertyArray[property]]
-            .toString().toLowerCase() === slots[slot].value.toString().toLowerCase());
-          if (item.length > 0) {
-            return item[0];
-          }
-        }
-      }
-    }
-  }
-  return slotValue;
-}
 
 function getSpeechCon(type) {
   if (type) return `<say-as interpret-as='interjection'>${speechConsCorrect[getRandom(0, speechConsCorrect.length - 1)]}! </say-as><break strength='strong'/>`;
   return `<say-as interpret-as='interjection'>${speechConsWrong[getRandom(0, speechConsWrong.length - 1)]} </say-as><break strength='strong'/>`;
 }
 
-
-function getTextDescription(item) {
-  let text = '';
-
-  for (const key in item) {
-    if (Object.prototype.hasOwnProperty.call(item, key)) {
-      text += `${formatCasing(key)}: ${item[key]}\n`;
-    }
-  }
-  return text;
-}
 
 function getAndShuffleMultipleChoiceAnswers(currentIndex, item, property) {
   return shuffle(getMultipleChoiceAnswers(currentIndex, item, property));
