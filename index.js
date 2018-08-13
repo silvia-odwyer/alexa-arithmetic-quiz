@@ -72,9 +72,14 @@ const AdvancedQuizHandler = {
   },
   handle(handlerInput) {
     const attributes = handlerInput.attributesManager.getSessionAttributes();
-
-    setLevel("advanced", handlerInput);
-    let message = "Advanced enabled! If you're ready to begin, say start quiz. ";
+    let message;
+    if (attributes.inGame === "true") {
+      message = "You can't change levels while in-game." 
+    }
+    else {
+      setLevel("advanced", handlerInput);
+      let message = "Advanced enabled! If you're ready to begin, say start quiz. ";  
+    }
 
     return handlerInput.responseBuilder
       .speak(message)
@@ -96,36 +101,45 @@ const QuizHandler = {
     const response = handlerInput.responseBuilder;
     attributes.counter = 0;
     attributes.quizScore = 0;
-    attributes.state = states.QUIZ;
+    var speakOutput;
+    var repromptOutput;
 
-    var question = askQuestion(handlerInput);
-    var speakOutput = startQuizMessage + question;
-    var repromptOutput = question;
-
-    const item = attributes.quizItem;
-    const property = attributes.quizProperty;
-
-    if (supportsDisplay(handlerInput)) {
-      const title = `Question #${attributes.counter}`;
-      const primaryText = new Alexa.RichTextContentHelper().withPrimaryText(getQuestionWithoutOrdinal(property, item)).getTextContent();
-      const backgroundImage = new Alexa.ImageHelper().addImageInstance(getBackgroundImage(attributes.quizItem.Abbreviation)).getImage();
-      const itemList = [];
-      getAndShuffleMultipleChoiceAnswers(attributes.selectedItemIndex, item, property).forEach((x, i) => {
-        itemList.push(
-          {
-            "token": x,
-            "textContent": new Alexa.PlainTextContentHelper().withPrimaryText(x).getTextContent(),
-          }
-        );
-      });
-      response.addRenderTemplateDirective({
-        type: 'ListTemplate1',
-        token: 'Question',
-        backButton: 'hidden',
-        backgroundImage,
-        title,
-        listItems: itemList,
-      });
+    if (levels.includes(attributes.level) === false) {
+      speakOutput = "You didn't specify a level. What level would you like to play, easy, intermediate, or advanced?";
+      repromptOutput = speakOutput;
+    }
+    else {
+      attributes.state = states.QUIZ;
+      attributes.inGame = "true";
+      var question = askQuestion(handlerInput);
+      speakOutput = startQuizMessage + question;
+      repromptOutput = question;
+  
+      const item = attributes.quizItem;
+      const property = attributes.quizProperty;
+  
+      if (supportsDisplay(handlerInput)) {
+        const title = `Question #${attributes.counter}`;
+        const primaryText = new Alexa.RichTextContentHelper().withPrimaryText(getQuestionWithoutOrdinal(property, item)).getTextContent();
+        const backgroundImage = new Alexa.ImageHelper().addImageInstance(getBackgroundImage(attributes.quizItem.Abbreviation)).getImage();
+        const itemList = [];
+        getAndShuffleMultipleChoiceAnswers(attributes.selectedItemIndex, item, property).forEach((x, i) => {
+          itemList.push(
+            {
+              "token": x,
+              "textContent": new Alexa.PlainTextContentHelper().withPrimaryText(x).getTextContent(),
+            }
+          );
+        });
+        response.addRenderTemplateDirective({
+          type: 'ListTemplate1',
+          token: 'Question',
+          backButton: 'hidden',
+          backgroundImage,
+          title,
+          listItems: itemList,
+        });
+      }
     }
 
     return response.speak(speakOutput)
@@ -324,7 +338,7 @@ const imagePath = "https://m.media-amazon.com/images/G/01/mobile-apps/dex/alexa/
 const backgroundImagePath = "https://m.media-amazon.com/images/G/01/mobile-apps/dex/alexa/alexa-skills-kit/tutorials/quiz-game/state_flag/{0}x{1}/{2}._TTH_.png"
 const speechConsCorrect = ['Booya', 'All righty', 'Bam', 'Bazinga', 'Bingo', 'Boom', 'Bravo', 'Cha Ching', 'Cheers', 'Dynomite', 'Hip hip hooray', 'Hurrah', 'Hurray', 'Huzzah', 'Oh dear.  Just kidding.  Hurray', 'Kaboom', 'Kaching', 'Oh snap', 'Phew', 'Righto', 'Way to go', 'Well done', 'Whee', 'Woo hoo', 'Yay', 'Wowza', 'Yowsa'];
 const speechConsWrong = ['Argh', 'Aw man', 'Blarg', 'Blast', 'Boo', 'Bummer', 'Darn', "D'oh", 'Dun dun dun', 'Eek', 'Honk', 'Le sigh', 'Mamma mia', 'Oh boy', 'Oh dear', 'Oof', 'Ouch', 'Ruh roh', 'Shucks', 'Uh oh', 'Wah wah', 'Whoops a daisy', 'Yikes'];
-
+const levels = ["easy", "intermediate", "advanced"]
 const states = {
   START: `_START`,
   QUIZ: `_QUIZ`,
