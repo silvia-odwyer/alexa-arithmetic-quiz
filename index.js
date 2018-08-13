@@ -422,7 +422,7 @@ function getRandom(min, max) {
 
 function askQuestion(handlerInput) {
   console.log("RUNNING: askQuestion()");
-  const math_array = ["plus", "subtract"];
+  const math_array = ["plus", "multiply", "subtract"];
 
   //GET SESSION ATTRIBUTES
   const attributes = handlerInput.attributesManager.getSessionAttributes();
@@ -430,44 +430,55 @@ function askQuestion(handlerInput) {
   //Get game level
   let level = attributes.level;
   let randomOperator;
-
+  let randomNumber1;
+  let randomNumber2;
   // Set operator depending on the game's level.
   // 
   if (level == "easy") {
-    randomOperator = math_array[0];
+    let ranIndex = getRandom(0, 1);
 
-    let randomNumber1 = getRandom(0, 30);
-    let randomNumber2 = getRandom(0, 30);
+    randomOperator = math_array[ranIndex];
+    if (randomOperator === "plus") {
+      randomNumber1 = getRandom(5, 30);
+      randomNumber2 = getRandom(5, 30);
+    }
+    else if (randomOperator === "multiply") {
+      randomNumber1 = getRandom(2, 9);
+      randomNumber2 = getRandom(2, 9);
+    }
+
   }
   else if (level == "intermediate") {
     randomOperator = math_array[1];
 
-    let randomNumber1 = getRandom(0, 50);
-    let randomNumber2 = getRandom(0, 50);
+    randomNumber1 = getRandom(8, 50);
+    randomNumber2 = getRandom(8, 50);
   }
   else {
     let randomNum = getRandom(0, math_array.length - 1);
-    let randomNumber1 = getRandom(0, 60);
-    let randomNumber2 = getRandom(0, 60);
-    randomOperator = math_array[randomNum]
+    randomOperator = math_array[randomNum];
+    randomNumber1 = getRandom(12, 50);
+    randomNumber2 = getRandom(60, 50);
   }
 
-
-
-  if (randomOperator === "subtract") {
-    if (randomNumber1 < randomNumber2) {
-      let temp = randomNumber1;
-      randomNumber1 = randomNumber2;
-      randomNumber2 = temp;
-    }
-  }
+  let random_math_arr_index = getRandom(0, math_array.length - 1);
+  let random = getRandom(0, 50);
 
   let answer = 0;
   if (randomOperator == "plus") {
     answer = randomNumber1 + randomNumber2;
   }
   else if (randomOperator == "subtract") {
+    if (randomNumber1 < randomNumber2) {
+      let temp = randomNumber1;
+      randomNumber1 = randomNumber2;
+      randomNumber2 = temp;
+    }
     answer = randomNumber1 - randomNumber2
+  }
+
+  else if (randomOperator == "multiply") {
+    answer = randomNumber1 * randomNumber2;
   }
 
   answer_arr.push(answer);
