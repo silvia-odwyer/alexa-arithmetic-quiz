@@ -1,0 +1,15 @@
+{
+  "name": "Quick Arithmetic",
+  "version": "1.0.0",
+  "description": "An Amazon Alexa skill that puts your arithmetic skills to the test.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Silvia O'Dwyer",
+  "license": "ISC",
+  "dependencies": {
+    "ask-sdk-core": "^2.0.0",
+    "ask-sdk-model": "^1.0.0"
+  }
+}
