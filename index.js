@@ -1,12 +1,8 @@
-/* eslint-disable  func-names */
-/* eslint-disable  no-console */
-/* eslint-disable  no-restricted-syntax */
-
-// See this screenshot - https://alexa.design/enabledisplay
 
 const Alexa = require('ask-sdk-core');
 
 /* All Intent Handlers */
+
 const LaunchRequestHandler = {
   // Checks if a launch request was fired
   canHandle(handlerInput) {
@@ -20,7 +16,13 @@ const LaunchRequestHandler = {
   },
 };
 
+
+// IN-GAME LEVEL HANDLERS 
+// I'm using separate handlers for each level, because levels may include extra unlockables,
+// so set up of those would differ depending on the level.
+
 // Sets level to Basic Mode.
+
 const EasyQuizHandler = {
   // Checks if an `enable easy/basic mode` quiz request was fired
   canHandle(handlerInput) {
@@ -37,8 +39,7 @@ const EasyQuizHandler = {
     }
     else {
       setLevel("easy", handlerInput);
-
-      message = "Easy mode enabled! If you're ready to begin, say start quiz."
+      message = "Easy mode enabled! If you're ready to begin, say start quiz. " + attributes.currentQuestion;
     }
     return handlerInput.responseBuilder
       .speak(message)
@@ -49,7 +50,7 @@ const EasyQuizHandler = {
 
 // Sets game level to Intermediate.
 const IntermediateQuizHandler = {
-  // Checks if an intermediate quiz request was fired
+  // Checks if an `enable intermediate mode` quiz request was fired
   canHandle(handlerInput) {
     const request = handlerInput.requestEnvelope.request;
     console.log(JSON.stringify(request));
@@ -63,10 +64,8 @@ const IntermediateQuizHandler = {
       message = "You can't change levels while in-game."
     }
     else {
-
       setLevel("intermediate", handlerInput);
-
-      let message = "Intermediate enabled! If you're ready to begin, say start quiz."
+      message = "Intermediate mode enabled! If you're ready to begin, say start quiz. " + attributes.currentQuestion;
     }
     return handlerInput.responseBuilder
       .speak(message)
@@ -75,8 +74,10 @@ const IntermediateQuizHandler = {
   },
 };
 
+// Sets game level to Advanced.
+
 const AdvancedQuizHandler = {
-  // Checks if an intermediate quiz request was fired
+  // Checks if an `enable advanced mode` quiz request was fired
   canHandle(handlerInput) {
     const request = handlerInput.requestEnvelope.request;
     console.log(JSON.stringify(request));
@@ -91,9 +92,8 @@ const AdvancedQuizHandler = {
     }
     else {
       setLevel("advanced", handlerInput);
-      let message = "Advanced enabled! If you're ready to begin, say start quiz. ";
+      message = "Advanced mode enabled! If you're ready to begin, say start quiz. " + attributes.currentQuestion;
     }
-
     return handlerInput.responseBuilder
       .speak(message)
       .reprompt(helpMessage)
@@ -117,6 +117,7 @@ const QuizHandler = {
     var speakOutput;
     var repromptOutput;
 
+    // User never specified a level, so they are reprompted to do so, continually, until they do.
     if (levels.includes(attributes.level) === false) {
       speakOutput = "You didn't specify a level. What level would you like to play, easy, intermediate, or advanced?";
       repromptOutput = speakOutput;
@@ -345,17 +346,22 @@ const ErrorHandler = {
 };
 
 /* CONSTANTS */
-const skillBuilder = Alexa.SkillBuilders.custom();
-const answer_arr = [];
-const imagePath = "https://m.media-amazon.com/images/G/01/mobile-apps/dex/alexa/alexa-skills-kit/tutorials/quiz-game/state_flag/{0}x{1}/{2}._TTH_.png";
-const backgroundImagePath = "https://m.media-amazon.com/images/G/01/mobile-apps/dex/alexa/alexa-skills-kit/tutorials/quiz-game/state_flag/{0}x{1}/{2}._TTH_.png"
+
+// Constants from AMAZON's Alexa dev team
+// SpeechCons enhance Alexa's humanistic qualities when saying celebratory/non-celebratory words, making speech more lifelike.
 const speechConsCorrect = ['Booya', 'All righty', 'Bam', 'Bazinga', 'Bingo', 'Boom', 'Bravo', 'Cha Ching', 'Cheers', 'Dynomite', 'Hip hip hooray', 'Hurrah', 'Hurray', 'Huzzah', 'Oh dear.  Just kidding.  Hurray', 'Kaboom', 'Kaching', 'Oh snap', 'Phew', 'Righto', 'Way to go', 'Well done', 'Whee', 'Woo hoo', 'Yay', 'Wowza', 'Yowsa'];
 const speechConsWrong = ['Argh', 'Aw man', 'Blarg', 'Blast', 'Boo', 'Bummer', 'Darn', "D'oh", 'Dun dun dun', 'Eek', 'Honk', 'Le sigh', 'Mamma mia', 'Oh boy', 'Oh dear', 'Oof', 'Ouch', 'Ruh roh', 'Shucks', 'Uh oh', 'Wah wah', 'Whoops a daisy', 'Yikes'];
-const levels = ["easy", "intermediate", "advanced"]
 const states = {
   START: `_START`,
   QUIZ: `_QUIZ`,
 };
+
+// Extra in-game constants.
+const skillBuilder = Alexa.SkillBuilders.custom();
+const answer_arr = [];
+const imagePath = "https://m.media-amazon.com/images/G/01/mobile-apps/dex/alexa/alexa-skills-kit/tutorials/quiz-game/state_flag/{0}x{1}/{2}._TTH_.png";
+const backgroundImagePath = "https://m.media-amazon.com/images/G/01/mobile-apps/dex/alexa/alexa-skills-kit/tutorials/quiz-game/state_flag/{0}x{1}/{2}._TTH_.png"
+const levels = ["easy", "intermediate", "advanced"]
 
 const correct_msgs = ["You're right!", "Right answer!", "That's correct!", "You are right!", "Yep, that's the right answer!", "Congrats, you're right!", "Yep, you're right!"];
 const incorrect_msgs = ["Wrong answer.", "Sorry, you're wrong.", "That's an incorrect answer."]
@@ -416,9 +422,7 @@ function getBackgroundImage(label, height = 1024, width = 600) {
     .replace("{2}", label);
 }
 
-function getSpeechDescription(item) {
-  return `${item.StateName} is the ${item.StatehoodOrder}th state, admitted to the Union in ${item.StatehoodYear}.  The capital of ${item.StateName} is ${item.Capital}, and the abbreviation for ${item.StateName} is <break strength='strong'/><say-as interpret-as='spell-out'>${item.Abbreviation}</say-as>.  I've added ${item.StateName} to your Alexa app.  Which other state or capital would you like to know about?`;
-}
+
 
 function formatCasing(key) {
   return key.split(/(?=[A-Z])/).join(' ');
@@ -533,6 +537,7 @@ function askQuestion(handlerInput) {
   attributes.operator = randomOperator;
   attributes.selectedItemIndex = random;
   attributes.counter += 1;
+  attributes.currentQuestion = question;
 
   //SAVE ATTRIBUTES
   handlerInput.attributesManager.setSessionAttributes(attributes);
@@ -580,13 +585,6 @@ function getMultipleChoiceAnswers(currentIndex, item, property) {
   // insert the correct answer first
   let answerList = [item[property]];
 
-  // There's a possibility that we might get duplicate answers
-  // 8 states were founded in 1788
-  // 4 states were founded in 1889
-  // 3 states were founded in 1787
-  // to prevent duplicates we need avoid index collisions and take a sample of
-  // 8 + 4 + 1 = 13 answers (it's not 8+4+3 because later we take the unique
-  // we only need the minimum.)
   let count = 0
   let upperBound = 12
 
