@@ -30,10 +30,16 @@ const EasyQuizHandler = {
       (request.intent.name === "EasyQuizIntent" || request.intent.name === "AMAZON.StartOverIntent");
   },
   handle(handlerInput) {
+    const attributes = handlerInput.attributesManager.getSessionAttributes();
+    let message;
+    if (attributes.inGame === "true") {
+      message = "You can't change levels while in-game."
+    }
+    else {
+      setLevel("easy", handlerInput);
 
-    setLevel("easy", handlerInput);
-
-    let message = "Easy mode enabled! If you're ready to begin, say start quiz."
+      message = "Easy mode enabled! If you're ready to begin, say start quiz."
+    }
     return handlerInput.responseBuilder
       .speak(message)
       .reprompt(helpMessage)
@@ -51,10 +57,17 @@ const IntermediateQuizHandler = {
       (request.intent.name === "IntermediateQuizIntent" || request.intent.name === "AMAZON.StartOverIntent");
   },
   handle(handlerInput) {
+    const attributes = handlerInput.attributesManager.getSessionAttributes();
+    let message;
+    if (attributes.inGame === "true") {
+      message = "You can't change levels while in-game."
+    }
+    else {
 
-    setLevel("intermediate", handlerInput);
+      setLevel("intermediate", handlerInput);
 
-    let message = "Intermediate enabled! If you're ready to begin, say start quiz."
+      let message = "Intermediate enabled! If you're ready to begin, say start quiz."
+    }
     return handlerInput.responseBuilder
       .speak(message)
       .reprompt(helpMessage)
@@ -74,11 +87,11 @@ const AdvancedQuizHandler = {
     const attributes = handlerInput.attributesManager.getSessionAttributes();
     let message;
     if (attributes.inGame === "true") {
-      message = "You can't change levels while in-game." 
+      message = "You can't change levels while in-game."
     }
     else {
       setLevel("advanced", handlerInput);
-      let message = "Advanced enabled! If you're ready to begin, say start quiz. ";  
+      let message = "Advanced enabled! If you're ready to begin, say start quiz. ";
     }
 
     return handlerInput.responseBuilder
@@ -114,10 +127,10 @@ const QuizHandler = {
       var question = askQuestion(handlerInput);
       speakOutput = startQuizMessage + question;
       repromptOutput = question;
-  
+
       const item = attributes.quizItem;
       const property = attributes.quizProperty;
-  
+
       if (supportsDisplay(handlerInput)) {
         const title = `Question #${attributes.counter}`;
         const primaryText = new Alexa.RichTextContentHelper().withPrimaryText(getQuestionWithoutOrdinal(property, item)).getTextContent();
