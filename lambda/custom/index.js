@@ -7,25 +7,16 @@ const LaunchRequestHandler = {
     return handlerInput.requestEnvelope.request.type === `LaunchRequest`;
   },
   handle(handlerInput) {
-    return handlerInput.responseBuilder
-      .speak(welcomeMessage)
-      .reprompt(helpMessage)
-      .getResponse();
-  },
-};
+    let ranIndex1 = getRandom(0, welcomeMessages.length - 1);
+    let ranWelcomeMessage = welcomeMessages[ranIndex1];
 
-const RepeatRequestHandler = {
-  // Checks if a repeat request was fired
-  canHandle(handlerInput) {
-    const request = handlerInput.requestEnvelope.request;
-    return request.type === "IntentRequest" &&
-      (request.intent.name === "RepeatRequestIntent");
-  },
-  handle(handlerInput) {
-    const attributes = handlerInput.attributesManager.getSessionAttributes();
+    let ranIndex2 = getRandom(0, welcomeInstructions.length - 1);
+    let ranWelcomeInstruction = welcomeInstructions[ranIndex2];
+
+    let welcome_concat = `${ranWelcomeMessage} ${ranWelcomeInstruction} What level would you like to play?`;
 
     return handlerInput.responseBuilder
-      .speak(attributes.currentQuestion)
+      .speak(welcome_concat)
       .reprompt(helpMessage)
       .getResponse();
   },
@@ -349,6 +340,23 @@ const ErrorHandler = {
   },
 };
 
+const RepeatRequestHandler = {
+  // Checks if a repeat request was fired
+  canHandle(handlerInput) {
+    const request = handlerInput.requestEnvelope.request;
+    return request.type === "IntentRequest" &&
+      (request.intent.name === "RepeatRequestIntent");
+  },
+  handle(handlerInput) {
+    const attributes = handlerInput.attributesManager.getSessionAttributes();
+
+    return handlerInput.responseBuilder
+      .speak(attributes.currentQuestion)
+      .reprompt(helpMessage)
+      .getResponse();
+  },
+};
+
 
 const RepeatIntentHandler = {
   canHandle(handlerInput) {
@@ -395,7 +403,8 @@ const levels = ["easy", "intermediate", "advanced"]
 const correct_msgs = ["You're right!", "Right answer!", "That's correct!", "You are right!", "Yep, that's the right answer!", "Congrats, you're right!", "Yep, you're right!"];
 const incorrect_msgs = ["Wrong answer.", "Sorry, you're wrong.", "That's an incorrect answer."]
 
-const welcomeMessage = `Welcome to Quick Math, the game that puts your arithmetic skills to the test! You can ask me to start a quiz in easy, intermediate, or advanced mode. What level would you like to play?`;
+const welcomeMessages = ["Welcome to Quick Math, the game that puts your arithmetic skills to the test!", "Welcome to Quick Math! Are you ready to have your arithmetic skills tested?", "Hey there, welcome to Quick Math, where the goal is all about getting as many arithmetic questions right as you can!", "Welcome to Quick Math! If you're ready to have your arithmetic knowledge tested, I'm ready to play!", "Hello and welcome to Quick Math, the game that tests your arithmetic skills."]
+const welcomeInstructions = ["There are three levels available: easy, intermediate, and advanced.", "I've got three levels available: easy, intermediate, or advanced.", "You can ask me to start a quiz in easy, intermediate, or advanced mode."];
 const exitSkillMessage = `Thank you for playing Quick Math! Let's play again soon. `;
 const repromptSpeech = `Would you like to play again?`;
 const helpMessage = `If you want to play a quiz in easy mode, just say play easy quiz, if you want to play in intermediate, just say play intermediate quiz. The same applies for advanced. What would you like to do?`;
