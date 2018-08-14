@@ -18,7 +18,7 @@ const LaunchRequestHandler = {
 // I'm using separate handlers for each level, because levels may include extra unlockables,
 // so set up of those would differ depending on the level.
 
-// Sets level to Basic Mode.
+// Sets level to Easy Mode.
 const EasyQuizHandler = {
   // Checks if an `enable easy/basic mode` quiz request was fired
   canHandle(handlerInput) {
@@ -120,7 +120,7 @@ const QuizHandler = {
       attributes.state = states.QUIZ;
       attributes.inGame = "true";
       var question = askQuestion(handlerInput);
-      speakOutput = startQuizMessage + question;
+      speakOutput = `Ok. I will ask you ${attributes.rounds} arithmetic questions. ` + question;
       repromptOutput = question;
 
       const item = attributes.quizItem;
@@ -180,7 +180,7 @@ const AnswerHandler = {
       speakOutput = getSpeechCon(true);
       let randomNum = getRandom(0, correct_msgs.length - 1);
       let correct_msg = correct_msgs[randomNum];
-      speakOutput += correct_msg;
+      speakOutput += ` ${correct_msg}`;
       simpleCardMsg += correct_msg;
       attributes.quizScore += 1;
       handlerInput.attributesManager.setSessionAttributes(attributes);
@@ -199,7 +199,7 @@ const AnswerHandler = {
 
     var question = ``;
 
-    if (attributes.counter < 6) {
+    if (attributes.counter < attributes.rounds) {
       speakOutput += getCurrentScore(attributes.quizScore, attributes.counter);
       question = askQuestion(handlerInput);
 
@@ -378,11 +378,10 @@ const levels = ["easy", "intermediate", "advanced"]
 const correct_msgs = ["You're right!", "Right answer!", "That's correct!", "You are right!", "Yep, that's the right answer!", "Congrats, you're right!", "Yep, you're right!"];
 const incorrect_msgs = ["Wrong answer.", "Sorry, you're wrong.", "That's an incorrect answer."]
 
-const welcomeMessage = `Welcome to Quick Math, the game that puts your arithmetic skills to the test! You can ask me to start a quiz in basic, intermediate, or advanced mode. What would level would you like to play?`;
-const startQuizMessage = `OK. I will ask you 6 arithmetic questions. `;
+const welcomeMessage = `Welcome to Quick Math, the game that puts your arithmetic skills to the test! You can ask me to start a quiz in easy, intermediate, or advanced mode. What level would you like to play?`;
 const exitSkillMessage = `Thank you for playing Quick Math!  Let's play again soon!`;
 const repromptSpeech = `Would you like to play again?`;
-const helpMessage = `If you want to play a quiz in basic mode, just say play basic quiz, if you want to play in intermediate, just say play intermediate quiz. The same applies for advanced. What would you like to do?`;
+const helpMessage = `If you want to play a quiz in easy mode, just say play easy quiz, if you want to play in intermediate, just say play intermediate quiz. The same applies for advanced. What would you like to do?`;
 const useCardsFlag = true;
 
 /* HELPER FUNCTIONS */
@@ -467,7 +466,7 @@ function getRandom(min, max) {
 
 function askQuestion(handlerInput) {
   console.log("RUNNING: askQuestion()");
-  const math_array = ["plus", "multiplied by", "subtract"];
+  const math_array = ["plus", "multiplied by", "subtract", "divided by"];
 
   //GET SESSION ATTRIBUTES
   const attributes = handlerInput.attributesManager.getSessionAttributes();
@@ -485,12 +484,12 @@ function askQuestion(handlerInput) {
   if (level == "easy") {
     randomOperator = math_array[ranIndex];
     if (randomOperator === "plus" || randomOperator == "subtract") {
-      randomNumber1 = getRandom(5, 30);
-      randomNumber2 = getRandom(5, 30);
+      randomNumber1 = getRandom(5, 20);
+      randomNumber2 = getRandom(5, 20);
     }
-    else if (randomOperator === "multiplied by") {
-      randomNumber1 = getRandom(2, 9);
-      randomNumber2 = getRandom(2, 9);
+    else if (randomOperator === "multiplied by" || "divided by") {
+      randomNumber1 = getRandom(2, 7);
+      randomNumber2 = getRandom(2, 7);
     }
 
   }
@@ -501,7 +500,7 @@ function askQuestion(handlerInput) {
       randomNumber1 = getRandom(8, 50);
       randomNumber2 = getRandom(8, 50);
     }
-    else if (randomOperator === "multiplied by") {
+    else if (randomOperator === "multiplied by" || "divided by") {
       randomNumber1 = getRandom(5, 12);
       randomNumber2 = getRandom(5, 12);
     }
@@ -513,7 +512,7 @@ function askQuestion(handlerInput) {
       randomNumber1 = getRandom(15, 70);
       randomNumber2 = getRandom(15, 70);
     }
-    else if (randomOperator === "multiplied by") {
+    else if (randomOperator === "multiplied by" || "divided by") {
       randomNumber1 = getRandom(7, 14);
       randomNumber2 = getRandom(7, 14);
     }
@@ -540,6 +539,18 @@ function askQuestion(handlerInput) {
     answer = randomNumber1 * randomNumber2;
   }
 
+  else if (randomOperator == "divided by") {
+    
+    // get all multiples of ranNum2
+    let multiples = [];
+    for (let k = 0; k < 9; k += 1) {
+      multiples.push(k * randomNumber2);
+    }
+    let ran_multiple_index = getRandom(0, multiples.length - 1);
+    randomNumber1 = multiples[ran_multiple_index];
+    answer = randomNumber1 / randomNumber2;
+  }
+
   answer_arr.push(answer);
 
   const question = getMathQuestion(attributes.counter, randomOperator, randomNumber1, randomNumber2);
@@ -562,7 +573,9 @@ function askQuestion(handlerInput) {
 
 function setLevel(level, handlerInput) {
   const attributes = handlerInput.attributesManager.getSessionAttributes();
+  let level_dict = {"easy" : 10, "intermediate" : 20, "advanced" : 30}
   attributes.level = level;
+  attributes.rounds = level_dict[level];
   handlerInput.attributesManager.setSessionAttributes(attributes);
 }
 function getMathQuestion(counter, operator, randomNumber1, randomNumber2) {
