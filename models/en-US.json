@@ -106,6 +106,17 @@
             "start a basic mode quiz"
           ],
           "slots": []
+        },
+        {
+          "name": "RepeatRequestIntent",
+          "samples": [
+            "say it again",
+            "repeat that",
+            "repeat it",
+            "repeat",
+            "say it again"
+          ],
+          "slots": []
         }
       ],
       "types": [

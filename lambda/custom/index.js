@@ -14,6 +14,23 @@ const LaunchRequestHandler = {
   },
 };
 
+const RepeatRequestHandler = {
+  // Checks if a repeat request was fired
+  canHandle(handlerInput) {
+    const request = handlerInput.requestEnvelope.request;
+    return request.type === "IntentRequest" &&
+      (request.intent.name === "RepeatRequestIntent");
+  },
+  handle(handlerInput) {
+    const attributes = handlerInput.attributesManager.getSessionAttributes();
+
+    return handlerInput.responseBuilder
+      .speak(attributes.currentQuestion)
+      .reprompt(helpMessage)
+      .getResponse();
+  },
+};
+
 // IN-GAME LEVEL HANDLERS 
 // I'm using separate handlers for each level, because levels may include extra unlockables,
 // so set up of those would differ depending on the level.
@@ -200,7 +217,7 @@ const AnswerHandler = {
     var question = ``;
 
     if (attributes.counter < attributes.rounds) {
-      speakOutput += getCurrentScore(attributes.quizScore, attributes.counter);
+      speakOutput += ` ${getCurrentScore(attributes.quizScore, attributes.counter)}`
       question = askQuestion(handlerInput);
 
       simpleCardMsg += ` ${question}`;
@@ -379,7 +396,7 @@ const correct_msgs = ["You're right!", "Right answer!", "That's correct!", "You 
 const incorrect_msgs = ["Wrong answer.", "Sorry, you're wrong.", "That's an incorrect answer."]
 
 const welcomeMessage = `Welcome to Quick Math, the game that puts your arithmetic skills to the test! You can ask me to start a quiz in easy, intermediate, or advanced mode. What level would you like to play?`;
-const exitSkillMessage = `Thank you for playing Quick Math!  Let's play again soon!`;
+const exitSkillMessage = `Thank you for playing Quick Math! Let's play again soon. `;
 const repromptSpeech = `Would you like to play again?`;
 const helpMessage = `If you want to play a quiz in easy mode, just say play easy quiz, if you want to play in intermediate, just say play intermediate quiz. The same applies for advanced. What would you like to do?`;
 const useCardsFlag = true;
@@ -663,6 +680,7 @@ exports.handler = skillBuilder
   QuizHandler,
   AnswerHandler,
   RepeatHandler,
+  RepeatRequestHandler,
   EasyQuizHandler,
   IntermediateQuizHandler,
   AdvancedQuizHandler,
