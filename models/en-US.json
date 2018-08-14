@@ -2,7 +2,7 @@
 {
   "interactionModel": {
     "languageModel": {
-      "invocationName": "quick arithmetic",
+      "invocationName": "quick math",
       "intents": [
         {
           "name": "AMAZON.CancelIntent",

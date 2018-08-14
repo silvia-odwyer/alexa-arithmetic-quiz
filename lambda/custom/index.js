@@ -378,9 +378,9 @@ const levels = ["easy", "intermediate", "advanced"]
 const correct_msgs = ["You're right!", "Right answer!", "That's correct!", "You are right!", "Yep, that's the right answer!", "Congrats, you're right!", "Yep, you're right!"];
 const incorrect_msgs = ["Wrong answer.", "Sorry, you're wrong.", "That's an incorrect answer."]
 
-const welcomeMessage = `Welcome to Quick Arithmetic, the game that puts your arithmetic skills to the test! You can ask me to start a quiz in basic, intermediate, or advanced mode. What would you like to play?`;
+const welcomeMessage = `Welcome to Quick Math, the game that puts your arithmetic skills to the test! You can ask me to start a quiz in basic, intermediate, or advanced mode. What would level would you like to play?`;
 const startQuizMessage = `OK. I will ask you 6 arithmetic questions. `;
-const exitSkillMessage = `Thank you for playing Quick Arithmetic!  Let's play again soon!`;
+const exitSkillMessage = `Thank you for playing Quick Math!  Let's play again soon!`;
 const repromptSpeech = `Would you like to play again?`;
 const helpMessage = `If you want to play a quiz in basic mode, just say play basic quiz, if you want to play in intermediate, just say play intermediate quiz. The same applies for advanced. What would you like to do?`;
 const useCardsFlag = true;
