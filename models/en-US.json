@@ -1,7 +1,8 @@
+
 {
   "interactionModel": {
     "languageModel": {
-      "invocationName": "quiz game",
+      "invocationName": "quick arithmetic",
       "intents": [
         {
           "name": "AMAZON.CancelIntent",
@@ -24,9 +25,22 @@
           "samples": []
         },
         {
+          "name": "AnswerIntent",
+          "samples": [
+            "{ANS_US}"
+          ],
+          "slots": [
+            {
+              "name": "ANS_US",
+              "type": "AMAZON.US_CITY",
+              "samples": []
+            }
+          ]
+        },
+        {
           "name": "QuizIntent",
           "samples": [
-            "start an quiz",
+            "start a quiz",
             "start a quiz game",
             "and start a quiz",
             "and quiz me",
@@ -57,13 +71,13 @@
         {
           "name": "EasyQuizIntent",
           "samples": [
-            "easy"
+            "basic"
           ],
           "slots": []
         }
       ],
       "types": [
-          ]  
+      ]
     }
   }
 }
