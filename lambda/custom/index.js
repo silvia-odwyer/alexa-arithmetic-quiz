@@ -1,9 +1,3 @@
-/* eslint-disable  func-names */
-/* eslint-disable  no-console */
-/* eslint-disable  no-restricted-syntax */
-
-// See this screenshot - https://alexa.design/enabledisplay
-
 const Alexa = require('ask-sdk-core');
 
 /* All Intent Handlers */
@@ -215,9 +209,17 @@ const AnswerHandler = {
 
       if (supportsDisplay(handlerInput)) {
         const title = `Question #${attributes.counter}`;
+        const primaryText = new Alexa.RichTextContentHelper().withPrimaryText(getQuestionWithoutOrdinal(attributes.quizProperty, attributes.quizItem)).getTextContent();
         const backgroundImage = new Alexa.ImageHelper().addImageInstance(getBackgroundImage(attributes.quizItem.Abbreviation)).getImage();
         const itemList = [];
-
+        getAndShuffleMultipleChoiceAnswers(attributes.selectedItemIndex, attributes.quizItem, attributes.quizProperty).forEach((x, i) => {
+          itemList.push(
+            {
+              "token": x,
+              "textContent": new Alexa.PlainTextContentHelper().withPrimaryText(x).getTextContent(),
+            }
+          );
+        });
         response.addRenderTemplateDirective({
           type: 'ListTemplate1',
           token: 'Question',
@@ -262,7 +264,7 @@ const RepeatHandler = {
   handle(handlerInput) {
 
     const attributes = handlerInput.attributesManager.getSessionAttributes();
-    const question = attributes.currentQuestion;
+    const question = getQuestion(attributes.counter, attributes.quizproperty, attributes.quizitem);
 
     return handlerInput.responseBuilder
       .speak(question)
@@ -396,24 +398,6 @@ function supportsDisplay(handlerInput) {
   return hasDisplay;
 }
 
-function compareSlots(slots, value) {
-  for (const slot in slots) {
-    if (Object.prototype.hasOwnProperty.call(slots, slot) && slots[slot].value !== undefined) {
-      if (slots[slot].value.toString().toLowerCase() === value.toString().toLowerCase()) {
-        return true;
-      }
-    }
-  }
-
-  return false;
-}
-
-function getSpeechCon(type) {
-  if (type) return `<say-as interpret-as='interjection'>${speechConsCorrect[getRandom(0, speechConsCorrect.length - 1)]}! </say-as><break strength='strong'/>`;
-  return `<say-as interpret-as='interjection'>${speechConsWrong[getRandom(0, speechConsWrong.length - 1)]} </say-as><break strength='strong'/>`;
-}
-
-
 function getBadAnswer(item) {
   return `I'm sorry. ${item} is not something I know very much about in this skill. ${helpMessage}`;
 }
@@ -424,6 +408,10 @@ function getCurrentScore(score, counter) {
 
 function getFinalScore(score, counter) {
   return `Your final score is ${score} out of ${counter}. `;
+}
+
+function getCardTitle(item) {
+  return item.StateName;
 }
 
 function getSmallImage(item) {
@@ -452,6 +440,16 @@ function getSpeechDescription(item) {
 
 function formatCasing(key) {
   return key.split(/(?=[A-Z])/).join(' ');
+}
+
+function getQuestion(counter, property, item) {
+  return `Here is your ${counter}th question.  What is the ${formatCasing(property)} of ${item.StateName}?`;
+}
+
+// getQuestionWithoutOrdinal returns the question without the ordinal and is
+// used for the echo show.
+function getQuestionWithoutOrdinal(property, item) {
+  return "What is the " + formatCasing(property).toLowerCase() + " of " + item.StateName + "?";
 }
 
 function getAnswer(property, item) {
@@ -561,6 +559,7 @@ function askQuestion(handlerInput) {
   return question;
 }
 
+
 function setLevel(level, handlerInput) {
   const attributes = handlerInput.attributesManager.getSessionAttributes();
   attributes.level = level;
@@ -569,6 +568,80 @@ function setLevel(level, handlerInput) {
 function getMathQuestion(counter, operator, randomNumber1, randomNumber2) {
   return `Here is your ${counter + 1}th question.  What is ${randomNumber1} ${operator} ${randomNumber2}?`;
 
+}
+
+function compareSlots(slots, value) {
+  for (const slot in slots) {
+    if (Object.prototype.hasOwnProperty.call(slots, slot) && slots[slot].value !== undefined) {
+      if (slots[slot].value.toString().toLowerCase() === value.toString().toLowerCase()) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+
+function getSpeechCon(type) {
+  if (type) return `<say-as interpret-as='interjection'>${speechConsCorrect[getRandom(0, speechConsCorrect.length - 1)]}! </say-as><break strength='strong'/>`;
+  return `<say-as interpret-as='interjection'>${speechConsWrong[getRandom(0, speechConsWrong.length - 1)]} </say-as><break strength='strong'/>`;
+}
+
+
+function getAndShuffleMultipleChoiceAnswers(currentIndex, item, property) {
+  return shuffle(getMultipleChoiceAnswers(currentIndex, item, property));
+}
+
+// This function randomly chooses 3 answers 2 incorrect and 1 correct answer to
+// display on the screen using the ListTemplate. It ensures that the list is unique.
+function getMultipleChoiceAnswers(currentIndex, item, property) {
+
+  // insert the correct answer first
+  let answerList = [item[property]];
+
+  // There's a possibility that we might get duplicate answers
+  // 8 states were founded in 1788
+  // 4 states were founded in 1889
+  // 3 states were founded in 1787
+  // to prevent duplicates we need avoid index collisions and take a sample of
+  // 8 + 4 + 1 = 13 answers (it's not 8+4+3 because later we take the unique
+  // we only need the minimum.)
+  let count = 0
+  let upperBound = 12
+
+  let seen = new Array();
+  seen[currentIndex] = 1;
+
+  while (count < upperBound) {
+    let random = getRandom(0, 52);
+
+    // only add if we haven't seen this index
+    if (seen[random] === undefined) {
+      answerList.push(data[random][property]);
+      count++;
+    }
+  }
+
+  // remove duplicates from the list.
+  answerList = answerList.filter((v, i, a) => a.indexOf(v) === i)
+  // take the first three items from the list.
+  answerList = answerList.slice(0, 3);
+  return answerList;
+}
+
+// This function takes the contents of an array and randomly shuffles it.
+function shuffle(array) {
+  let currentIndex = array.length, temporaryValue, randomIndex;
+
+  while (0 !== currentIndex) {
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex--;
+    temporaryValue = array[currentIndex];
+    array[currentIndex] = array[randomIndex];
+    array[randomIndex] = temporaryValue;
+  }
+  return array;
 }
 
 exports.handler = skillBuilder
