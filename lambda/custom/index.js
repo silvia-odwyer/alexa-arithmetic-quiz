@@ -208,7 +208,18 @@ const AnswerHandler = {
     var question = ``;
 
     if (attributes.counter < attributes.rounds) {
-      speakOutput += ` ${getCurrentScore(attributes.quizScore, attributes.counter)}`
+      // Only tell the user their current score every 2nd question.
+      let get_counter_or_not = getRandom(0, 1);
+      if (get_counter_or_not === 1) {
+        speakOutput += ` ${getCurrentScore(attributes.quizScore, attributes.counter)}`
+      }
+      let percentage = (attributes.quizScore / attributes.counter) * 100;
+      if (percentage === 100 && get_counter_or_not === 0) {
+        let celebratory_msgs = ["Wow, you're on a roll!", "Wow, no wrong answers yet! Keep it up!", "Wow, you're on a streak!"];
+        let ran_n = getRandom(0, celebratory_msgs.length - 1);
+        let ran_celebratory_msg = celebratory_msgs[ran_n];
+        speakOutput += ran_celebratory_msg;
+      }
       question = askQuestion(handlerInput);
 
       simpleCardMsg += ` ${question}`;
@@ -245,6 +256,13 @@ const AnswerHandler = {
     else {
       let ranIndex3 = getRandom(0, exitSkillMessages.length - 1)
       speakOutput += getFinalScore(attributes.quizScore, attributes.counter) + exitSkillMessages[2];
+
+      // Randomization of star rating message
+      // Once every 30 times, at the end of the game, the user will be invited to give the game a rating. 
+      let random_num = getRandom(0, 10);
+      if (random_num === 5) {
+        speakOutput += " If you could give this game a rating or review on the Amazon Alexa store, the developer of Quick Math will be able to make more games just like this. Thank you so much!"
+      }
       if (supportsDisplay(handlerInput)) {
         const title = 'Thank you for playing';
         const primaryText = new Alexa.RichTextContentHelper().withPrimaryText(getFinalScore(attributes.quizScore, attributes.counter)).getTextContent();
@@ -406,7 +424,7 @@ const levels = ["easy", "intermediate", "advanced"]
 const correct_msgs = ["You're right!", "Right answer!", "That's correct!", "You are right!", "Yep, that's the right answer!", "Congrats, you're right!", "Yep, you're right!"];
 const incorrect_msgs = ["Wrong answer.", "Sorry, you're wrong.", "That's an incorrect answer."]
 
-const welcomeMessages = ["Welcome to Quick Math, the game that puts your arithmetic skills to the test!", "Welcome to Quick Math! Are you ready to have your arithmetic skills tested?", "Hey there, welcome to Quick Math, where the goal is all about getting as many arithmetic questions right as you can!", "Welcome to Quick Math! If you're ready to have your arithmetic knowledge tested, I'm ready to play!", "Hello and welcome to Quick Math, the game that tests your arithmetic skills."]
+const welcomeMessages = ["Welcome to Quick Math, the game that puts your arithmetic skills to the test!", "Welcome to Quick Math! Are you ready to have your arithmetic skills tested?", "Hey! Welcome to Quick Math!", "Welcome to Quick Math! If you're ready to have your arithmetic knowledge tested, I'm ready to play!", "Hello and welcome to Quick Math, the game that tests your arithmetic skills."]
 const welcomeInstructions = ["There are three levels available: easy, intermediate, and advanced.", "I've got three levels available: easy, intermediate, or advanced.", "You can ask me to start a quiz in easy, intermediate, or advanced mode."];
 const exitSkillMessages = [`Thank you for playing Quick Math! Let's play again soon.`, "Thanks for playing Quick Math. I had a great time. I hope you did too! We should play again soon!", "Thanks for playing Quick Math. We should definitely play again soon!", "Thanks for playing Quick Math, I hope you play again soon.", "That was a lot of fun! I had a great time. Thanks for playing Quick Math.", "Wow, I had a lot of fun asking you those questions! Thanks for playing!", "That was a heap of fun, I had a fantastic time! We should play again soon!"];
 const earlyExitSkillMessages = ["I'm sorry you have to leave early. Let's play again soon.", "Thanks for trying out Quick Math. Let's play again soon."]
@@ -644,13 +662,6 @@ function getMultipleChoiceAnswers(currentIndex, item, property) {
   // insert the correct answer first
   let answerList = [item[property]];
 
-  // There's a possibility that we might get duplicate answers
-  // 8 states were founded in 1788
-  // 4 states were founded in 1889
-  // 3 states were founded in 1787
-  // to prevent duplicates we need avoid index collisions and take a sample of
-  // 8 + 4 + 1 = 13 answers (it's not 8+4+3 because later we take the unique
-  // we only need the minimum.)
   let count = 0
   let upperBound = 12
 
