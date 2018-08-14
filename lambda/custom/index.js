@@ -243,7 +243,8 @@ const AnswerHandler = {
         .getResponse();
     }
     else {
-      speakOutput += getFinalScore(attributes.quizScore, attributes.counter) + exitSkillMessage;
+      let ranIndex3 = getRandom(0, exitSkillMessages.length - 1)
+      speakOutput += getFinalScore(attributes.quizScore, attributes.counter) + exitSkillMessages[2];
       if (supportsDisplay(handlerInput)) {
         const title = 'Thank you for playing';
         const primaryText = new Alexa.RichTextContentHelper().withPrimaryText(getFinalScore(attributes.quizScore, attributes.counter)).getTextContent();
@@ -308,8 +309,10 @@ const ExitHandler = {
     );
   },
   handle(handlerInput) {
+    let ranExitIndex = getRandom(0, earlyExitSkillMessages.length - 1);
+    let early_exit_msg = earlyExitSkillMessages[ranExitIndex]
     return handlerInput.responseBuilder
-      .speak(exitSkillMessage)
+      .speak(early_exit_msg)
       .getResponse();
   },
 };
@@ -405,7 +408,9 @@ const incorrect_msgs = ["Wrong answer.", "Sorry, you're wrong.", "That's an inco
 
 const welcomeMessages = ["Welcome to Quick Math, the game that puts your arithmetic skills to the test!", "Welcome to Quick Math! Are you ready to have your arithmetic skills tested?", "Hey there, welcome to Quick Math, where the goal is all about getting as many arithmetic questions right as you can!", "Welcome to Quick Math! If you're ready to have your arithmetic knowledge tested, I'm ready to play!", "Hello and welcome to Quick Math, the game that tests your arithmetic skills."]
 const welcomeInstructions = ["There are three levels available: easy, intermediate, and advanced.", "I've got three levels available: easy, intermediate, or advanced.", "You can ask me to start a quiz in easy, intermediate, or advanced mode."];
-const exitSkillMessage = `Thank you for playing Quick Math! Let's play again soon. `;
+const exitSkillMessages = [`Thank you for playing Quick Math! Let's play again soon.`, "Thanks for playing Quick Math. I had a great time. I hope you did too! We should play again soon!", "Thanks for playing Quick Math. We should definitely play again soon!", "Thanks for playing Quick Math, I hope you play again soon.", "That was a lot of fun! I had a great time. Thanks for playing Quick Math.", "Wow, I had a lot of fun asking you those questions! Thanks for playing!", "That was a heap of fun, I had a fantastic time! We should play again soon!"];
+const earlyExitSkillMessages = ["I'm sorry you have to leave early. Let's play again soon.", "Thanks for trying out Quick Math. Let's play again soon."]
+
 const repromptSpeech = `Would you like to play again?`;
 const helpMessage = `If you want to play a quiz in easy mode, just say play easy quiz, if you want to play in intermediate, just say play intermediate quiz. The same applies for advanced. What would you like to do?`;
 const useCardsFlag = true;
