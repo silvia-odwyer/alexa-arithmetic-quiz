@@ -57,21 +57,53 @@
         {
           "name": "IntermediateQuizIntent",
           "samples": [
-            "intermediate"
+            "intermediate",
+            "start an intermediate quiz",
+            "intermediate quiz",
+            "start a medium quiz",
+            "medium",
+            "start a medium level quiz",
+            "start an intermediate game",
+            "I'd like an intermediate quiz",
+            "start a quiz in intermediate mode",
+            "start a game in intermediate mode",
+            "start an intermediate mode quiz"
           ],
           "slots": []
         },
         {
           "name": "AdvancedQuizIntent",
           "samples": [
-            "advanced"
+            "advanced",
+            "start an advanced quiz",
+            "advanced quiz",
+            "start an advanced quiz",
+            "advanced game",
+            "start an advanced level quiz",
+            "start an advanced game",
+            "I'd like an advanced quiz",
+            "start a quiz in advanced mode",
+            "start a game in advanced mode",
+            "start an advanced mode quiz"
           ],
           "slots": []
         },
         {
           "name": "EasyQuizIntent",
           "samples": [
-            "basic"
+            "basic",
+            "easy",
+            "start an easy quiz",
+            "start a basic quiz",
+            "basic quiz",
+            "start a basic quiz",
+            "basic game",
+            "start a basic level quiz",
+            "start a basic game",
+            "I'd like a basic quiz",
+            "start a quiz in basic mode",
+            "start a game in basic mode",
+            "start a basic mode quiz"
           ],
           "slots": []
         }
