@@ -14,7 +14,6 @@ const LaunchRequestHandler = {
     let ranWelcomeInstruction = welcomeInstructions[ranIndex2];
 
     let welcome_concat = `${ranWelcomeMessage} ${ranWelcomeInstruction} What level would you like to play?`;
-
     return handlerInput.responseBuilder
       .speak(welcome_concat)
       .reprompt(helpMessage)
@@ -43,7 +42,7 @@ const EasyQuizHandler = {
     }
     else {
       setLevel("easy", handlerInput);
-      message = "Easy mode enabled! If you're ready to begin, say start quiz. " 
+      message = "Easy mode enabled! If you're ready to begin, say start quiz. "
     }
     return handlerInput.responseBuilder
       .speak(message)
@@ -65,7 +64,7 @@ const IntermediateQuizHandler = {
     const attributes = handlerInput.attributesManager.getSessionAttributes();
     let message;
     if (attributes.inGame === "true") {
-      message = "You can't change levels while in-game. "  + attributes.currentQuestion;
+      message = "You can't change levels while in-game. " + attributes.currentQuestion;
     }
     else {
       setLevel("intermediate", handlerInput);
@@ -96,7 +95,7 @@ const AdvancedQuizHandler = {
     }
     else {
       setLevel("advanced", handlerInput);
-      message = "Advanced mode enabled! If you're ready to begin, say start quiz. " 
+      message = "Advanced mode enabled! If you're ready to begin, say start quiz. "
     }
     return handlerInput.responseBuilder
       .speak(message)
@@ -138,7 +137,7 @@ const QuizHandler = {
         const title = `Question #${attributes.counter}`;
         const backgroundImage = new Alexa.ImageHelper().addImageInstance(getBackgroundImage(attributes.quizItem.Abbreviation)).getImage();
         const itemList = [];
-        
+
         response.addRenderTemplateDirective({
           type: 'ListTemplate1',
           token: 'Question',
@@ -185,7 +184,10 @@ const AnswerHandler = {
     var simpleCardMsg = "";
 
     if (isCorrect) {
-      speakOutput = getSpeechCon(true);
+      let ran_pos_fx = getRandom(0, win_sound_fx.length - 1);
+      let win_fx = win_sound_fx[ran_pos_fx];
+      speakOutput += win_fx;
+      speakOutput += getSpeechCon(true);
       let randomNum = getRandom(0, correct_msgs.length - 1);
       let correct_msg = correct_msgs[randomNum];
       speakOutput += ` ${correct_msg}`;
@@ -193,13 +195,19 @@ const AnswerHandler = {
       attributes.quizScore += 1;
       handlerInput.attributesManager.setSessionAttributes(attributes);
 
-    } else {
+    }
+    else {
       let randomIncorrectIndex = getRandom(0, incorrect_msgs.length - 1);
 
       let incorrect_msg = incorrect_msgs[randomIncorrectIndex];
+
+      let loss_index = getRandom(0, loss_sound_fx.length - 1);
+      let loss_fx = loss_sound_fx[loss_index];
+      speakOutput += loss_fx;
+
+      speakOutput += getSpeechCon(false);
       speakOutput += incorrect_msg;
-      speakOutput = getSpeechCon(false);
-      speakOutput += `${number_one} ${operator} ${number_two} is ${actual_answer}. `
+      speakOutput += ` ${number_one} ${operator} ${number_two} is ${actual_answer}. `
 
       simpleCardMsg += incorrect_msg;
 
@@ -209,13 +217,13 @@ const AnswerHandler = {
 
     if (attributes.counter < attributes.rounds) {
       // Only tell the user their current score every 2nd question.
-      let get_counter_or_not = getRandom(0, 1);
+      let get_counter_or_not = getRandom(0, 3);
       if (get_counter_or_not === 1) {
         speakOutput += ` ${getCurrentScore(attributes.quizScore, attributes.counter)}`
       }
       let percentage = (attributes.quizScore / attributes.counter) * 100;
       if (percentage === 100 && get_counter_or_not === 0) {
-        let celebratory_msgs = ["Wow, you're on a roll!", "Wow, no wrong answers yet! Keep it up!", "Wow, you're on a streak!"];
+        let celebratory_msgs = ["Keep it up!", "<say-as interpret-as='interjection'>wow!</say-as><break strength='strong'/>no wrong answers yet! Keep it up!", "<say-as interpret-as='interjection'>Wow!</say-as><break strength='strong'/>, you're on a streak!"];
         let ran_n = getRandom(0, celebratory_msgs.length - 1);
         let ran_celebratory_msg = celebratory_msgs[ran_n];
         speakOutput += ran_celebratory_msg;
@@ -390,7 +398,7 @@ const RepeatIntentHandler = {
     const attributes = handlerInput.attributesManager.getSessionAttributes();
     let message;
     if (attributes.inGame === "true") {
-      message = `${attributes.currentQuestion}`; 
+      message = `${attributes.currentQuestion}`;
     }
     else {
       message = helpMessage;
@@ -424,6 +432,11 @@ const levels = ["easy", "intermediate", "advanced"]
 const correct_msgs = ["You're right!", "Right answer!", "That's correct!", "You are right!", "Yep, that's the right answer!", "Congrats, you're right!", "Yep, you're right!"];
 const incorrect_msgs = ["Wrong answer.", "Sorry, you're wrong.", "That's an incorrect answer."]
 
+// Sound effects
+const win_sound_fx = ["<audio src='https://s3.amazonaws.com/ask-soundlibrary/ui/gameshow/amzn_ui_sfx_gameshow_positive_response_01.mp3'/>", "<audio src='https://s3.amazonaws.com/ask-soundlibrary/ui/gameshow/amzn_ui_sfx_gameshow_tally_positive_01.mp3'/>", "<audio src='https://s3.amazonaws.com/ask-soundlibrary/ui/gameshow/amzn_ui_sfx_gameshow_positive_response_02.mp3'/>"]
+const loss_sound_fx = ["<audio src='https://s3.amazonaws.com/ask-soundlibrary/ui/gameshow/amzn_ui_sfx_gameshow_negative_response_02.mp3'/>", "<audio src='https://s3.amazonaws.com/ask-soundlibrary/ui/gameshow/amzn_ui_sfx_gameshow_negative_response_01.mp3'/>"]
+
+// Messages
 const welcomeMessages = ["Welcome to Quick Math, the game that puts your arithmetic skills to the test!", "Welcome to Quick Math! Are you ready to have your arithmetic skills tested?", "Hey! Welcome to Quick Math!", "Welcome to Quick Math! If you're ready to have your arithmetic knowledge tested, I'm ready to play!", "Hello and welcome to Quick Math, the game that tests your arithmetic skills."]
 const welcomeInstructions = ["There are three levels available: easy, intermediate, and advanced.", "I've got three levels available: easy, intermediate, or advanced.", "You can ask me to start a quiz in easy, intermediate, or advanced mode."];
 const exitSkillMessages = [`Thank you for playing Quick Math! Let's play again soon.`, "Thanks for playing Quick Math. I had a great time. I hope you did too! We should play again soon!", "Thanks for playing Quick Math. We should definitely play again soon!", "Thanks for playing Quick Math, I hope you play again soon.", "That was a lot of fun! I had a great time. Thanks for playing Quick Math.", "Wow, I had a lot of fun asking you those questions! Thanks for playing!", "That was a heap of fun, I had a fantastic time! We should play again soon!"];
@@ -589,7 +602,7 @@ function askQuestion(handlerInput) {
   }
 
   else if (randomOperator == "divided by") {
-    
+
     // get all multiples of ranNum2
     let multiples = [];
     for (let k = 0; k < 9; k += 1) {
@@ -622,7 +635,7 @@ function askQuestion(handlerInput) {
 
 function setLevel(level, handlerInput) {
   const attributes = handlerInput.attributesManager.getSessionAttributes();
-  let level_dict = {"easy" : 10, "intermediate" : 20, "advanced" : 30}
+  let level_dict = { "easy": 10, "intermediate": 20, "advanced": 30 }
   attributes.level = level;
   attributes.rounds = level_dict[level];
   handlerInput.attributesManager.setSessionAttributes(attributes);
