@@ -6,7 +6,8 @@
           "summary": "Put your math skills to the test, with three levels: easy, intermediate, and advanced!",
           "examplePhrases": [
             "Alexa, open Quick Math",
-            "Alexa, open Quick Math"
+            "Alexa, enable easy mode",
+            "Alexa, start quiz"
           ],
           "keywords": [
             "quiz",
@@ -16,7 +17,64 @@
             "arithmetic quiz"
           ],
           "name": "Quick Math",
-          "description": "For endless fun and a great mental workout, Quick Math puts your arithmetic skills to the test, with three levels: basic, intermediate, and advanced. Each level contains addition, division, subtraction, and multiplication questions, and after a game, you'll get your score.\nThe number of questions depends on the level you choose, with up to 30 questions for the advanced level.\nQuick Math can be great for a morning workout, dinner time fun with your family, or a competitive evening game.\nTo start, just say \"Alexa, launch Quick Math\" or \"Alexa, open Quick Math\"\".\n\nTo hear Alexa repeat the question, just say 'repeat'. At any time, you can stop the game by saying \"Alexa, stop\"\nOther instructions include:\n-Play Easy Quiz: Set the level to easy.\n-Play Intermediate Quiz: Set the level to intermediate.\n-Play Advanced Quiz: Set the level to advanced.\n-Repeat: Alexa will repeat the current question.\n-Stop: End the current game.",
+          "description": "For endless fun and a great mental workout, Quick Math puts your arithmetic skills to the test, with three levels: basic, intermediate, and advanced. Each level contains addition, division, subtraction, and multiplication questions, and after a game, you'll get your score.\n\nThe number of questions depends on the level you choose, with up to 30 questions for the advanced level.\n\nQuick Math can be great for a morning workout, dinner time fun with your family, or as a competitive evening game.\nTo start, just say \"Alexa, launch Quick Math\" or \"Alexa, open Quick Math\"\".\n\nTo hear Alexa repeat the question, just say 'repeat'. At any time, you can stop the game by saying \"Alexa, stop\"\nOther instructions include:\n-Play Easy Quiz: Set the level to easy.\n-Play Intermediate Quiz: Set the level to intermediate.\n-Play Advanced Quiz: Set the level to advanced.\n-Start Quiz: When you're ready, you can start the quiz once a level is enabled. \n-Repeat: Alexa will repeat the current question.\n-Stop: End the current game.",
+          "smallIconUri": "https://raw.githubusercontent.com/silvia-odwyer/alexa-arithmetic-quiz/master/media/quickmath_siu.png",
+          "largeIconUri": "https://raw.githubusercontent.com/silvia-odwyer/alexa-arithmetic-quiz/master/media/quickmath_liu2.png"
+        },
+        "en-AU": {
+          "summary": "Put your math skills to the test, with three levels: easy, intermediate, and advanced!",
+          "examplePhrases": [
+            "Alexa, open Quick Math",
+            "Alexa, enable easy mode",
+            "Alexa, start quiz"
+          ],
+          "keywords": [
+            "quiz",
+            "math",
+            "math quiz",
+            "arithmetic",
+            "arithmetic quiz"
+          ],
+          "name": "Quick Math",
+          "description": "For endless fun and a great mental workout, Quick Math puts your arithmetic skills to the test, with three levels: basic, intermediate, and advanced. Each level contains addition, division, subtraction, and multiplication questions, and after a game, you'll get your score.\n\nThe number of questions depends on the level you choose, with up to 30 questions for the advanced level.\n\nQuick Math can be great for a morning workout, dinner time fun with your family, or as a competitive evening game.\nTo start, just say \"Alexa, launch Quick Math\" or \"Alexa, open Quick Math\"\".\n\nTo hear Alexa repeat the question, just say 'repeat'. At any time, you can stop the game by saying \"Alexa, stop\"\nOther instructions include:\n-Play Easy Quiz: Set the level to easy.\n-Play Intermediate Quiz: Set the level to intermediate.\n-Play Advanced Quiz: Set the level to advanced.\n-Start Quiz: When you're ready, you can start the quiz once a level is enabled. \n-Repeat: Alexa will repeat the current question.\n-Stop: End the current game.",
+          "smallIconUri": "https://raw.githubusercontent.com/silvia-odwyer/alexa-arithmetic-quiz/master/media/quickmath_siu.png",
+          "largeIconUri": "https://raw.githubusercontent.com/silvia-odwyer/alexa-arithmetic-quiz/master/media/quickmath_liu2.png"
+        },
+        "en-GB": {
+          "summary": "Put your math skills to the test, with three levels: easy, intermediate, and advanced!",
+          "examplePhrases": [
+            "Alexa, open Quick Math",
+            "Alexa, enable easy mode",
+            "Alexa, start quiz"
+          ],
+          "keywords": [
+            "quiz",
+            "math",
+            "math quiz",
+            "arithmetic",
+            "arithmetic quiz"
+          ],
+          "name": "Quick Math",
+          "description": "For endless fun and a great mental workout, Quick Math puts your arithmetic skills to the test, with three levels: basic, intermediate, and advanced. Each level contains addition, division, subtraction, and multiplication questions, and after a game, you'll get your score.\n\nThe number of questions depends on the level you choose, with up to 30 questions for the advanced level.\n\nQuick Math can be great for a morning workout, dinner time fun with your family, or as a competitive evening game.\nTo start, just say \"Alexa, launch Quick Math\" or \"Alexa, open Quick Math\"\".\n\nTo hear Alexa repeat the question, just say 'repeat'. At any time, you can stop the game by saying \"Alexa, stop\"\nOther instructions include:\n-Play Easy Quiz: Set the level to easy.\n-Play Intermediate Quiz: Set the level to intermediate.\n-Play Advanced Quiz: Set the level to advanced.\n-Start Quiz: When you're ready, you can start the quiz once a level is enabled. \n-Repeat: Alexa will repeat the current question.\n-Stop: End the current game.",
+          "smallIconUri": "https://raw.githubusercontent.com/silvia-odwyer/alexa-arithmetic-quiz/master/media/quickmath_siu.png",
+          "largeIconUri": "https://raw.githubusercontent.com/silvia-odwyer/alexa-arithmetic-quiz/master/media/quickmath_liu2.png"
+        },
+        "en-CA": {
+          "summary": "Put your math skills to the test, with three levels: easy, intermediate, and advanced!",
+          "examplePhrases": [
+            "Alexa, open Quick Math",
+            "Alexa, enable easy mode",
+            "Alexa, start quiz"
+          ],
+          "keywords": [
+            "quiz",
+            "math",
+            "math quiz",
+            "arithmetic",
+            "arithmetic quiz"
+          ],
+          "name": "Quick Math",
+          "description": "For endless fun and a great mental workout, Quick Math puts your arithmetic skills to the test, with three levels: basic, intermediate, and advanced. Each level contains addition, division, subtraction, and multiplication questions, and after a game, you'll get your score.\n\nThe number of questions depends on the level you choose, with up to 30 questions for the advanced level.\n\nQuick Math can be great for a morning workout, dinner time fun with your family, or as a competitive evening game.\nTo start, just say \"Alexa, launch Quick Math\" or \"Alexa, open Quick Math\"\".\n\nTo hear Alexa repeat the question, just say 'repeat'. At any time, you can stop the game by saying \"Alexa, stop\"\nOther instructions include:\n-Play Easy Quiz: Set the level to easy.\n-Play Intermediate Quiz: Set the level to intermediate.\n-Play Advanced Quiz: Set the level to advanced.\n-Start Quiz: When you're ready, you can start the quiz once a level is enabled. \n-Repeat: Alexa will repeat the current question.\n-Stop: End the current game.",
           "smallIconUri": "https://raw.githubusercontent.com/silvia-odwyer/alexa-arithmetic-quiz/master/media/quickmath_siu.png",
           "largeIconUri": "https://raw.githubusercontent.com/silvia-odwyer/alexa-arithmetic-quiz/master/media/quickmath_liu2.png"
         }
