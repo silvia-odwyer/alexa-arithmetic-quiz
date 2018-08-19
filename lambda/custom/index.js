@@ -104,6 +104,54 @@ const AdvancedQuizHandler = {
   },
 };
 
+const NumberOneHandler = {
+  // Checks if an `enable advanced mode` quiz request was fired
+  canHandle(handlerInput) {
+    const request = handlerInput.requestEnvelope.request;
+    console.log(JSON.stringify(request));
+    return request.type === "IntentRequest" &&
+      (request.intent.name === "NumberOneIntent" || request.intent.name === "AMAZON.StartOverIntent");
+  },
+  handle(handlerInput) {
+    const attributes = handlerInput.attributesManager.getSessionAttributes();
+    let message;
+    message = "Number request recognised."
+    const num = handlerInput.requestEnvelope.request.intent.slots;
+    var ans = attributes.actual_answer;
+    let res1 = compareSlots(num, ans);
+    if (res1 === true) {
+      message += "True."
+    }
+    else {
+      message += "False."
+    }
+
+    return handlerInput.responseBuilder
+      .speak(message)
+      .reprompt(helpMessage)
+  },
+};
+
+// Sets level to Easy Mode.
+const GenHandler = {
+  // Checks if an `enable easy/basic mode` quiz request was fired
+  canHandle(handlerInput) {
+    const request = handlerInput.requestEnvelope.request;
+    console.log(JSON.stringify(request));
+    return request.type === "IntentRequest" &&
+      (request.intent.name === "GenIntent" || request.intent.name === "AMAZON.StartOverIntent");
+  },
+  handle(handlerInput) {
+    const attributes = handlerInput.attributesManager.getSessionAttributes();
+    var message = "Gen handler enabled."
+      return handlerInput.responseBuilder
+      .speak(message)
+      .reprompt(helpMessage)
+      .getResponse();
+  },
+};
+
+
 const QuizHandler = {
   canHandle(handlerInput) {
     const request = handlerInput.requestEnvelope.request;
@@ -130,23 +178,6 @@ const QuizHandler = {
       speakOutput = `Ok. I will ask you ${attributes.rounds} arithmetic questions. ` + question;
       repromptOutput = question;
 
-      const item = attributes.quizItem;
-      const property = attributes.quizProperty;
-
-      if (supportsDisplay(handlerInput)) {
-        const title = `Question #${attributes.counter}`;
-        const backgroundImage = new Alexa.ImageHelper().addImageInstance(getBackgroundImage(attributes.quizItem.Abbreviation)).getImage();
-        const itemList = [];
-
-        response.addRenderTemplateDirective({
-          type: 'ListTemplate1',
-          token: 'Question',
-          backButton: 'hidden',
-          backgroundImage,
-          title,
-          listItems: itemList,
-        });
-      }
     }
 
 
@@ -173,12 +204,12 @@ const AnswerHandler = {
 
     var speakOutput = ``;
     var repromptOutput = ``;
-    const item = attributes.quizItem;
-    const property = attributes.quizProperty;
+
     const actual_answer = attributes.actual_answer;
     const number_one = attributes.number_one;
     const number_two = attributes.number_two;
     const operator = attributes.operator;
+    // const guessNum = parseInt(handlerInput.requestEnvelope.request.intent.slots.numval.value, actual_answer);
 
     const isCorrect = compareSlots(handlerInput.requestEnvelope.request.intent.slots, actual_answer);
     var simpleCardMsg = "";
@@ -234,28 +265,7 @@ const AnswerHandler = {
       speakOutput += question;
       repromptOutput = question;
 
-      if (supportsDisplay(handlerInput)) {
-        const title = `Question #${attributes.counter}`;
-        const primaryText = new Alexa.RichTextContentHelper().withPrimaryText(getQuestionWithoutOrdinal(attributes.quizProperty, attributes.quizItem)).getTextContent();
-        const backgroundImage = new Alexa.ImageHelper().addImageInstance(getBackgroundImage(attributes.quizItem.Abbreviation)).getImage();
-        const itemList = [];
-        getAndShuffleMultipleChoiceAnswers(attributes.selectedItemIndex, attributes.quizItem, attributes.quizProperty).forEach((x, i) => {
-          itemList.push(
-            {
-              "token": x,
-              "textContent": new Alexa.PlainTextContentHelper().withPrimaryText(x).getTextContent(),
-            }
-          );
-        });
-        response.addRenderTemplateDirective({
-          type: 'ListTemplate1',
-          token: 'Question',
-          backButton: 'hidden',
-          backgroundImage,
-          title,
-          listItems: itemList,
-        });
-      }
+
       return response.speak(speakOutput)
         .withSimpleCard(simpleCardMsg)
         .reprompt(repromptOutput)
@@ -271,20 +281,75 @@ const AnswerHandler = {
       if (random_num === 5) {
         speakOutput += " If you could give this game a rating or review on the Amazon Alexa store, the developer of Quick Math will be able to make more games just like this. Thank you so much!"
       }
-      if (supportsDisplay(handlerInput)) {
-        const title = 'Thank you for playing';
-        const primaryText = new Alexa.RichTextContentHelper().withPrimaryText(getFinalScore(attributes.quizScore, attributes.counter)).getTextContent();
-        response.addRenderTemplateDirective({
-          type: 'BodyTemplate1',
-          backButton: 'hidden',
-          title,
-          textContent: primaryText,
-        });
-      }
+
       return response.speak(speakOutput).getResponse();
     }
   },
 };
+const NumberGuessIntent = {
+  canHandle(handlerInput) {
+    // handle numbers only during a game
+    let isCurrentlyPlaying = false;
+    const request = handlerInput.requestEnvelope.request;
+    const attributesManager = handlerInput.attributesManager;
+    const sessionAttributes = attributesManager.getSessionAttributes();
+
+    return request.type === 'IntentRequest' && request.intent.name === 'NumberGuessIntent';
+  },
+  handle(handlerInput) {
+    // const { requestEnvelope, attributesManager, responseBuilder } = handlerInput;
+
+    // const guessNum = parseInt(requestEnvelope.request.intent.slots.number.value, 10);
+    // const sessionAttributes = attributesManager.getSessionAttributes();
+    // const targetNum = sessionAttributes.guessNumber;
+
+    // if (guessNum > targetNum) {
+    //   return responseBuilder
+    //     .speak(`${guessNum.toString()} is too high.`)
+    //     .reprompt('Try saying a smaller number.')
+    //     .getResponse();
+    // } else if (guessNum < targetNum) {
+    //   return responseBuilder
+    //     .speak(`${guessNum.toString()} is too low.`)
+    //     .reprompt('Try saying a larger number.')
+    //     .getResponse();
+    // } else if (guessNum === targetNum) {
+    //   sessionAttributes.gamesPlayed += 1;
+    //   sessionAttributes.gameState = 'ENDED';
+    //   return responseBuilder
+    //     .speak(`${guessNum.toString()} is correct! Would you like to play a new game?`)
+    //     .reprompt('Say yes to start a new game, or no to end the game.')
+    //     .getResponse();
+    // }
+    return handlerInput.responseBuilder
+      .speak('Sorry, I didn\'t get that. Try saying a number.')
+      .reprompt('Try saying a number.')
+      .getResponse();
+  },
+};
+
+const GenerateHandler = {
+  canHandle(handlerInput) {
+
+    const attributes = handlerInput.attributesManager.getSessionAttributes();
+    const request = handlerInput.requestEnvelope.request;
+
+    return attributes.state === states.QUIZ &&
+      request.type === 'IntentRequest' &&
+      request.intent.name === 'GenerateIntent';
+  },
+  handle(handlerInput) {
+
+    const attributes = handlerInput.attributesManager.getSessionAttributes();
+    const question = "generator"
+
+    return handlerInput.responseBuilder
+      .speak(question)
+      .reprompt(question)
+      .getResponse();
+  },
+};
+
 
 const RepeatHandler = {
   canHandle(handlerInput) {
@@ -299,7 +364,7 @@ const RepeatHandler = {
   handle(handlerInput) {
 
     const attributes = handlerInput.attributesManager.getSessionAttributes();
-    const question = getQuestion(attributes.counter, attributes.quizproperty, attributes.quizitem);
+    // const question = getQuestion(attributes.counter);
 
     return handlerInput.responseBuilder
       .speak(question)
@@ -437,7 +502,7 @@ const win_sound_fx = ["<audio src='https://s3.amazonaws.com/ask-soundlibrary/ui/
 const loss_sound_fx = ["<audio src='https://s3.amazonaws.com/ask-soundlibrary/ui/gameshow/amzn_ui_sfx_gameshow_negative_response_02.mp3'/>", "<audio src='https://s3.amazonaws.com/ask-soundlibrary/ui/gameshow/amzn_ui_sfx_gameshow_negative_response_01.mp3'/>"]
 
 // Messages
-const welcomeMessages = ["Welcome to Quick Math, the game that puts your arithmetic skills to the test!", "Welcome to Quick Math! Are you ready to have your arithmetic skills tested?", "Hey! Welcome to Quick Math!", "Welcome to Quick Math! If you're ready to have your arithmetic knowledge tested, I'm ready to play!", "Hello and welcome to Quick Math, the game that tests your arithmetic skills."]
+const welcomeMessages = ["Welcome to Quick Math, the game that puts your arithmetic skills to the test!", "Welcome to Quick Math! Are you ready to have your arithmetic skills tested?", "Welcome to Quick Math!", "Welcome to Quick Math! If you're ready to have your arithmetic knowledge tested, I'm ready to play!", "Hello and welcome to Quick Math, the game that tests your arithmetic skills."]
 const welcomeInstructions = ["There are three levels available: easy, intermediate, and advanced.", "I've got three levels available: easy, intermediate, or advanced.", "You can ask me to start a quiz in easy, intermediate, or advanced mode."];
 const exitSkillMessages = [`Thank you for playing Quick Math! Let's play again soon.`, "Thanks for playing Quick Math. I had a great time. I hope you did too! We should play again soon!", "Thanks for playing Quick Math. We should definitely play again soon!", "Thanks for playing Quick Math, I hope you play again soon.", "That was a lot of fun! I had a great time. Thanks for playing Quick Math.", "Wow, I had a lot of fun asking you those questions! Thanks for playing!", "That was a heap of fun, I had a fantastic time! We should play again soon!"];
 const earlyExitSkillMessages = ["I'm sorry you have to leave early. Let's play again soon.", "Thanks for trying out Quick Math. Let's play again soon."]
@@ -495,9 +560,6 @@ function getBackgroundImage(label, height = 1024, width = 600) {
     .replace("{2}", label);
 }
 
-function getSpeechDescription(item) {
-  return `${item.StateName} is the ${item.StatehoodOrder}th state, admitted to the Union in ${item.StatehoodYear}.  The capital of ${item.StateName} is ${item.Capital}, and the abbreviation for ${item.StateName} is <break strength='strong'/><say-as interpret-as='spell-out'>${item.Abbreviation}</say-as>.  I've added ${item.StateName} to your Alexa app.  Which other state or capital would you like to know about?`;
-}
 
 function formatCasing(key) {
   return key.split(/(?=[A-Z])/).join(' ');
@@ -663,55 +725,6 @@ function getSpeechCon(type) {
   return `<say-as interpret-as='interjection'>${speechConsWrong[getRandom(0, speechConsWrong.length - 1)]} </say-as><break strength='strong'/>`;
 }
 
-
-function getAndShuffleMultipleChoiceAnswers(currentIndex, item, property) {
-  return shuffle(getMultipleChoiceAnswers(currentIndex, item, property));
-}
-
-// This function randomly chooses 3 answers 2 incorrect and 1 correct answer to
-// display on the screen using the ListTemplate. It ensures that the list is unique.
-function getMultipleChoiceAnswers(currentIndex, item, property) {
-
-  // insert the correct answer first
-  let answerList = [item[property]];
-
-  let count = 0
-  let upperBound = 12
-
-  let seen = new Array();
-  seen[currentIndex] = 1;
-
-  while (count < upperBound) {
-    let random = getRandom(0, 52);
-
-    // only add if we haven't seen this index
-    if (seen[random] === undefined) {
-      answerList.push(data[random][property]);
-      count++;
-    }
-  }
-
-  // remove duplicates from the list.
-  answerList = answerList.filter((v, i, a) => a.indexOf(v) === i)
-  // take the first three items from the list.
-  answerList = answerList.slice(0, 3);
-  return answerList;
-}
-
-// This function takes the contents of an array and randomly shuffles it.
-function shuffle(array) {
-  let currentIndex = array.length, temporaryValue, randomIndex;
-
-  while (0 !== currentIndex) {
-    randomIndex = Math.floor(Math.random() * currentIndex);
-    currentIndex--;
-    temporaryValue = array[currentIndex];
-    array[currentIndex] = array[randomIndex];
-    array[randomIndex] = temporaryValue;
-  }
-  return array;
-}
-
 exports.handler = skillBuilder
   .addRequestHandlers(
   LaunchRequestHandler,
@@ -720,7 +733,9 @@ exports.handler = skillBuilder
   RepeatHandler,
   RepeatRequestHandler,
   EasyQuizHandler,
+  GenHandler,
   IntermediateQuizHandler,
+  NumberGuessIntent,
   AdvancedQuizHandler,
   HelpHandler,
   ExitHandler,

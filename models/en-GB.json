@@ -1,3 +1,4 @@
+
 {
   "interactionModel": {
     "languageModel": {
@@ -26,12 +27,13 @@
         {
           "name": "AnswerIntent",
           "samples": [
-            "answer is {ANS_US}"
+            "{ANS_US}"
           ],
           "slots": [
             {
               "name": "ANS_US",
-              "type": "AMAZON.US_CITY"
+              "type": "AMAZON.US_CITY",
+              "samples": []
             }
           ]
         },
@@ -43,42 +45,14 @@
             "and start a quiz",
             "and quiz me",
             "for a quiz",
-            "a quiz",
-            "play a game",
-            "start quick arithmetic",
-            "start a quick arithmetic quiz",
-            "start an arithmetic game",
+            "a quiz", 
+            "play a game", 
+            "start quick arithmetic", 
+            "start a quick arithmetic quiz", 
+            "start an arithmetic game", 
             "start a maths quiz"
           ],
           "slots": []
-        },
-        {
-          "name": "NumberGuessIntent",
-          "samples": [
-            "{number}",
-            "is it {number}",
-            "how about {number}",
-            "could be {number}"
-          ],
-          "slots": [
-            {
-              "name": "number",
-              "type": "AMAZON.NUMBER"
-            }
-          ]
-        },
-        {
-          "name": "NumberIntent",
-          "samples": [
-            "{calcValue}"
-          ],
-          "slots": [
-            {
-              "name": "calcValue",
-              "type": "AMAZON.NUMBER",
-              "samples": []
-            }
-          ]
         },
         {
           "name": "IntermediateQuizIntent",
@@ -146,19 +120,6 @@
           "slots": []
         },
         {
-          "name": "GenIntent",
-          "samples": [
-            "hi {number}",
-            "{number}"
-          ],
-          "slots": [
-            {
-              "name": "number",
-              "type": "AMAZON.NUMBER"
-            }
-          ]
-        },
-        {
           "name": "RepeatRequestIntent",
           "samples": [
             "say it again",
@@ -170,7 +131,8 @@
           "slots": []
         }
       ],
-      "types": []
+      "types": [
+      ]
     }
   }
 }
