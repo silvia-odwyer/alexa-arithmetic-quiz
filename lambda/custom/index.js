@@ -124,6 +124,7 @@ const AdvancedQuizHandler = {
   },
 };
 
+
 const QuizHandler = {
   canHandle(handlerInput) {
     const request = handlerInput.requestEnvelope.request;
@@ -138,15 +139,40 @@ const QuizHandler = {
     attributes.counter = 0;
     attributes.quizScore = 0;
 
+    // User never specified a level, so they are reprompted to do so, continually, until they do.
+    if (levels.includes(attributes.level) === false) {
+      let level_msgs = ["I've got three levels available: easy, intermediate, and advanced. Which level would you like to play?", "What level takes your fancy? Easy, intermediate, or advanced?", "What level would you like to play, easy, intermediate, or advanced?"]
+      let ranLevelIndex = getRandom(0, level_msgs.length - 1);
+      let level_msg = level_msgs[ranLevelIndex];
+      
+      speakOutput = level_msg;
+      repromptOutput = speakOutput;
+    }
+    else {
+      attributes.state = states.QUIZ;
+      attributes.inGame = "true";
+      var question = askQuestion(handlerInput);
+      speakOutput = `Ok. I will ask you ${attributes.rounds} arithmetic questions. ` + question;
+      repromptOutput = question;
 
-    attributes.state = states.QUIZ;
-    attributes.inGame = "true";
-    var question = askQuestion(handlerInput);
-    speakOutput = `Ok. I will ask you ${attributes.rounds} arithmetic questions. ` + question;
-    repromptOutput = question;
+      const item = attributes.quizItem;
+      const property = attributes.quizProperty;
 
-    attributes.currentAlexaMessage = speakOutput;
-    handlerInput.attributesManager.setSessionAttributes(attributes);
+      if (supportsDisplay(handlerInput)) {
+        const title = `Question #${attributes.counter}`;
+        const backgroundImage = new Alexa.ImageHelper().addImageInstance(getBackgroundImage(attributes.quizItem.Abbreviation)).getImage();
+        const itemList = [];
+
+        response.addRenderTemplateDirective({
+          type: 'ListTemplate1',
+          token: 'Question',
+          backButton: 'hidden',
+          backgroundImage,
+          title,
+          listItems: itemList,
+        });
+      }
+    }
 
 
     return response.speak(speakOutput)
