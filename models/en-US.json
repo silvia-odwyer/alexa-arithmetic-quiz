@@ -26,12 +26,12 @@
         {
           "name": "AnswerIntent",
           "samples": [
-            "answer is {ANS_US}"
+            "{answer}"
           ],
           "slots": [
             {
-              "name": "ANS_US",
-              "type": "AMAZON.US_CITY"
+              "name": "answer",
+              "type": "AMAZON.NUMBER"
             }
           ]
         },
@@ -53,40 +53,10 @@
           "slots": []
         },
         {
-          "name": "NumberGuessIntent",
-          "samples": [
-            "{number}",
-            "is it {number}",
-            "how about {number}",
-            "could be {number}"
-          ],
-          "slots": [
-            {
-              "name": "number",
-              "type": "AMAZON.NUMBER"
-            }
-          ]
-        },
-        {
-          "name": "NumberIntent",
-          "samples": [
-            "{calcValue}"
-          ],
-          "slots": [
-            {
-              "name": "calcValue",
-              "type": "AMAZON.NUMBER",
-              "samples": []
-            }
-          ]
-        },
-        {
           "name": "IntermediateQuizIntent",
           "samples": [
             "intermediate",
             "start an intermediate quiz",
-            "enable intermediate mode",
-            "enable intermediate level",
             "intermediate quiz",
             "start a medium quiz",
             "medium",
@@ -107,8 +77,6 @@
             "start an advanced quiz",
             "advanced quiz",
             "start an advanced quiz",
-            "enable advanced mode",
-            "enable advanced level",
             "advanced game",
             "advanced mode",
             "start an advanced level quiz",
@@ -130,10 +98,6 @@
             "basic quiz",
             "start a basic quiz",
             "basic game",
-            "enable basic mode",
-            "enable basic level",
-            "enable easy mode",
-            "enable easy level",
             "basic mode",
             "easy mode",
             "start a basic level quiz",
@@ -144,19 +108,6 @@
             "start a basic mode quiz"
           ],
           "slots": []
-        },
-        {
-          "name": "GenIntent",
-          "samples": [
-            "hi {number}",
-            "{number}"
-          ],
-          "slots": [
-            {
-              "name": "number",
-              "type": "AMAZON.NUMBER"
-            }
-          ]
         },
         {
           "name": "RepeatRequestIntent",

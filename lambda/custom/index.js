@@ -7,19 +7,26 @@ const LaunchRequestHandler = {
     return handlerInput.requestEnvelope.request.type === `LaunchRequest`;
   },
   handle(handlerInput) {
+    const attributes = handlerInput.attributesManager.getSessionAttributes();
+
     let ranIndex1 = getRandom(0, welcomeMessages.length - 1);
     let ranWelcomeMessage = welcomeMessages[ranIndex1];
 
     let ranIndex2 = getRandom(0, welcomeInstructions.length - 1);
     let ranWelcomeInstruction = welcomeInstructions[ranIndex2];
 
-    let welcome_concat = `${ranWelcomeMessage} ${ranWelcomeInstruction} What level would you like to play?`;
+    var welcome_concat = `${ranWelcomeMessage} ${ranWelcomeInstruction} What level would you like to play?`;
+
+    attributes.currentAlexaMessage = welcome_concat;
+    handlerInput.attributesManager.setSessionAttributes(attributes);
+
     return handlerInput.responseBuilder
       .speak(welcome_concat)
       .reprompt(helpMessage)
       .getResponse();
   },
 };
+
 
 // IN-GAME LEVEL HANDLERS 
 // I'm using separate handlers for each level, because levels may include extra unlockables,
@@ -44,6 +51,10 @@ const EasyQuizHandler = {
       setLevel("easy", handlerInput);
       message = "Easy mode enabled! If you're ready to begin, say start quiz. "
     }
+
+    attributes.currentAlexaMessage = message;
+    handlerInput.attributesManager.setSessionAttributes(attributes);
+
     return handlerInput.responseBuilder
       .speak(message)
       .reprompt(helpMessage)
@@ -70,6 +81,10 @@ const IntermediateQuizHandler = {
       setLevel("intermediate", handlerInput);
       message = "Intermediate mode enabled! If you're ready to begin, say start quiz. "
     }
+
+    attributes.currentAlexaMessage = message;
+    handlerInput.attributesManager.setSessionAttributes(attributes);
+
     return handlerInput.responseBuilder
       .speak(message)
       .reprompt(helpMessage)
@@ -97,60 +112,17 @@ const AdvancedQuizHandler = {
       setLevel("advanced", handlerInput);
       message = "Advanced mode enabled! If you're ready to begin, say start quiz. "
     }
+
+    attributes.currentAlexaMessage = message;
+
+    handlerInput.attributesManager.setSessionAttributes(attributes);
+
     return handlerInput.responseBuilder
       .speak(message)
       .reprompt(helpMessage)
       .getResponse();
   },
 };
-
-const NumberOneHandler = {
-  // Checks if an `enable advanced mode` quiz request was fired
-  canHandle(handlerInput) {
-    const request = handlerInput.requestEnvelope.request;
-    console.log(JSON.stringify(request));
-    return request.type === "IntentRequest" &&
-      (request.intent.name === "NumberOneIntent" || request.intent.name === "AMAZON.StartOverIntent");
-  },
-  handle(handlerInput) {
-    const attributes = handlerInput.attributesManager.getSessionAttributes();
-    let message;
-    message = "Number request recognised."
-    const num = handlerInput.requestEnvelope.request.intent.slots;
-    var ans = attributes.actual_answer;
-    let res1 = compareSlots(num, ans);
-    if (res1 === true) {
-      message += "True."
-    }
-    else {
-      message += "False."
-    }
-
-    return handlerInput.responseBuilder
-      .speak(message)
-      .reprompt(helpMessage)
-  },
-};
-
-// Sets level to Easy Mode.
-const GenHandler = {
-  // Checks if an `enable easy/basic mode` quiz request was fired
-  canHandle(handlerInput) {
-    const request = handlerInput.requestEnvelope.request;
-    console.log(JSON.stringify(request));
-    return request.type === "IntentRequest" &&
-      (request.intent.name === "GenIntent" || request.intent.name === "AMAZON.StartOverIntent");
-  },
-  handle(handlerInput) {
-    const attributes = handlerInput.attributesManager.getSessionAttributes();
-    var message = "Gen handler enabled."
-      return handlerInput.responseBuilder
-      .speak(message)
-      .reprompt(helpMessage)
-      .getResponse();
-  },
-};
-
 
 const QuizHandler = {
   canHandle(handlerInput) {
@@ -166,19 +138,15 @@ const QuizHandler = {
     attributes.counter = 0;
     attributes.quizScore = 0;
 
-    // User never specified a level, so they are reprompted to do so, continually, until they do.
-    if (levels.includes(attributes.level) === false) {
-      speakOutput = "You didn't specify a level. What level would you like to play, easy, intermediate, or advanced?";
-      repromptOutput = speakOutput;
-    }
-    else {
-      attributes.state = states.QUIZ;
-      attributes.inGame = "true";
-      var question = askQuestion(handlerInput);
-      speakOutput = `Ok. I will ask you ${attributes.rounds} arithmetic questions. ` + question;
-      repromptOutput = question;
 
-    }
+    attributes.state = states.QUIZ;
+    attributes.inGame = "true";
+    var question = askQuestion(handlerInput);
+    speakOutput = `Ok. I will ask you ${attributes.rounds} arithmetic questions. ` + question;
+    repromptOutput = question;
+
+    attributes.currentAlexaMessage = speakOutput;
+    handlerInput.attributesManager.setSessionAttributes(attributes);
 
 
     return response.speak(speakOutput)
@@ -209,7 +177,6 @@ const AnswerHandler = {
     const number_one = attributes.number_one;
     const number_two = attributes.number_two;
     const operator = attributes.operator;
-    // const guessNum = parseInt(handlerInput.requestEnvelope.request.intent.slots.numval.value, actual_answer);
 
     const isCorrect = compareSlots(handlerInput.requestEnvelope.request.intent.slots, actual_answer);
     var simpleCardMsg = "";
@@ -286,70 +253,6 @@ const AnswerHandler = {
     }
   },
 };
-const NumberGuessIntent = {
-  canHandle(handlerInput) {
-    // handle numbers only during a game
-    let isCurrentlyPlaying = false;
-    const request = handlerInput.requestEnvelope.request;
-    const attributesManager = handlerInput.attributesManager;
-    const sessionAttributes = attributesManager.getSessionAttributes();
-
-    return request.type === 'IntentRequest' && request.intent.name === 'NumberGuessIntent';
-  },
-  handle(handlerInput) {
-    // const { requestEnvelope, attributesManager, responseBuilder } = handlerInput;
-
-    // const guessNum = parseInt(requestEnvelope.request.intent.slots.number.value, 10);
-    // const sessionAttributes = attributesManager.getSessionAttributes();
-    // const targetNum = sessionAttributes.guessNumber;
-
-    // if (guessNum > targetNum) {
-    //   return responseBuilder
-    //     .speak(`${guessNum.toString()} is too high.`)
-    //     .reprompt('Try saying a smaller number.')
-    //     .getResponse();
-    // } else if (guessNum < targetNum) {
-    //   return responseBuilder
-    //     .speak(`${guessNum.toString()} is too low.`)
-    //     .reprompt('Try saying a larger number.')
-    //     .getResponse();
-    // } else if (guessNum === targetNum) {
-    //   sessionAttributes.gamesPlayed += 1;
-    //   sessionAttributes.gameState = 'ENDED';
-    //   return responseBuilder
-    //     .speak(`${guessNum.toString()} is correct! Would you like to play a new game?`)
-    //     .reprompt('Say yes to start a new game, or no to end the game.')
-    //     .getResponse();
-    // }
-    return handlerInput.responseBuilder
-      .speak('Sorry, I didn\'t get that. Try saying a number.')
-      .reprompt('Try saying a number.')
-      .getResponse();
-  },
-};
-
-const GenerateHandler = {
-  canHandle(handlerInput) {
-
-    const attributes = handlerInput.attributesManager.getSessionAttributes();
-    const request = handlerInput.requestEnvelope.request;
-
-    return attributes.state === states.QUIZ &&
-      request.type === 'IntentRequest' &&
-      request.intent.name === 'GenerateIntent';
-  },
-  handle(handlerInput) {
-
-    const attributes = handlerInput.attributesManager.getSessionAttributes();
-    const question = "generator"
-
-    return handlerInput.responseBuilder
-      .speak(question)
-      .reprompt(question)
-      .getResponse();
-  },
-};
-
 
 const RepeatHandler = {
   canHandle(handlerInput) {
@@ -443,9 +346,9 @@ const RepeatRequestHandler = {
   },
   handle(handlerInput) {
     const attributes = handlerInput.attributesManager.getSessionAttributes();
-
+    var current_message = attributes.currentAlexaMessage;
     return handlerInput.responseBuilder
-      .speak(attributes.currentQuestion)
+      .speak(current_message)
       .reprompt(helpMessage)
       .getResponse();
   },
@@ -587,7 +490,6 @@ function getAnswer(property, item) {
 function getRandom(min, max) {
   return Math.floor((Math.random() * ((max - min) + 1)) + min);
 }
-
 function askQuestion(handlerInput) {
   console.log("RUNNING: askQuestion()");
   const math_array = ["plus", "multiplied by", "subtract", "divided by"];
@@ -733,9 +635,7 @@ exports.handler = skillBuilder
   RepeatHandler,
   RepeatRequestHandler,
   EasyQuizHandler,
-  GenHandler,
   IntermediateQuizHandler,
-  NumberGuessIntent,
   AdvancedQuizHandler,
   HelpHandler,
   ExitHandler,
