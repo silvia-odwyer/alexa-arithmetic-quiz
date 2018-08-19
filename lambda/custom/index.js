@@ -231,7 +231,8 @@ const AnswerHandler = {
       simpleCardMsg += ` ${question}`;
       speakOutput += question;
       repromptOutput = question;
-
+      attributes.currentAlexaMessage = speakOutput;
+      handlerInput.attributesManager.setSessionAttributes(attributes);
 
       return response.speak(speakOutput)
         .withSimpleCard(simpleCardMsg)
@@ -249,6 +250,8 @@ const AnswerHandler = {
         speakOutput += " If you could give this game a rating or review on the Amazon Alexa store, the developer of Quick Math will be able to make more games just like this. Thank you so much!"
       }
 
+      attributes.currentAlexaMessage = speakOutput;
+      handlerInput.attributesManager.setSessionAttributes(attributes);
       return response.speak(speakOutput).getResponse();
     }
   },
